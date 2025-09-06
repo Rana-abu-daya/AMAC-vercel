@@ -1,0 +1,68 @@
+:root {
+  /* Base colors */
+  --background: oklch(0.98 0 0);
+  --foreground: oklch(0.2 0 0);
+  
+  /* Primary colors for map visualization */
+  --map-gradient-1: oklch(0.85 0.15 130);  /* Lightest */
+  --map-gradient-2: oklch(0.75 0.18 130);
+  --map-gradient-3: oklch(0.65 0.21 130);
+  --map-gradient-4: oklch(0.55 0.24 130);
+  --map-gradient-5: oklch(0.45 0.27 130);  /* Darkest */
+  
+  /* UI Elements */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0 0);
+  --sidebar: oklch(0.97 0 0);
+  --sidebar-hover: oklch(0.95 0 0);
+  
+  /* Interactive elements */
+  --primary: oklch(0.55 0.2 130);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9 0.1 130);
+  --secondary-foreground: oklch(0.2 0 0);
+  
+  /* Accents and states */
+  --accent: oklch(0.6 0.2 200);
+  --accent-foreground: oklch(1 0 0);
+  --hover: oklch(0.95 0.05 130);
+  --active: oklch(0.9 0.1 130);
+  
+  /* Borders and shadows */
+  --border: oklch(0.85 0 0);
+  --ring: oklch(0.7 0.15 130);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Playfair Display', serif;
+  
+  /* Spacing and sizing */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: oklch(0.1 0 0);
+    --foreground: oklch(0.95 0 0);
+    --card: oklch(0.15 0 0);
+    --card-foreground: oklch(0.95 0 0);
+    --sidebar: oklch(0.12 0 0);
+    --sidebar-hover: oklch(0.15 0 0);
+    --border: oklch(0.3 0 0);
+    --hover: oklch(0.2 0.05 130);
+    --active: oklch(0.25 0.1 130);
+  }
+}

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muslim Voters in Washington & California</title>
+    
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+    
+    <!-- Additional dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #65a30d;
+            --primary-hover: #4d7c0f;
+            --background: #0a0a0a;
+            --foreground: #ffffff;
+            --card: rgba(26, 26, 26, 0.8);
+            --border: rgba(42, 42, 42, 0.5);
+            --heat-1: rgba(101, 163, 13, 0.1);
+            --heat-2: rgba(101, 163, 13, 0.3);
+            --heat-3: rgba(101, 163, 13, 0.5);
+            --heat-4: rgba(101, 163, 13, 0.7);
+            --heat-5: rgba(101, 163, 13, 0.9);
+        }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--card);
+            color: var(--foreground);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(42, 42, 42, 0.8);
+        }
+
+        .view-toggle {
+            display: inline-flex;
+            background: var(--card);
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+            gap: 0.25rem;
+        }
+
+        .view-toggle button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .view-toggle button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .legend-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(
+                to right,
+                var(--heat-1),
+                var(--heat-2),
+                var(--heat-3),
+                var(--heat-4),
+                var(--heat-5)
+            );
+        }
+
+        .mapboxgl-popup {
+            max-width: 400px;
+        }
+
+        .mapboxgl-popup-content {
+            background: var(--card);
+            color: var(--foreground);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Custom slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--card);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+    <!-- Header -->
+    <header class="glass-card m-4 p-4 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold">Muslim Voters in Washington & California</h1>
+            <p class="text-sm opacity-70">Last Updated: April 2024</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="view-toggle">
+                <button class="active">Washington</button>
+                <button>California</button>
+                <button>Compare</button>
+            </div>
+            <button class="btn-primary flex items-center gap-2">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export Data
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex gap-4 m-4 mt-0">
+        <!-- Left Sidebar -->
+        <div class="glass-card w-80 p-4 flex flex-col">
+            <div class="space-y-6">
+                <!-- View Type -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">View By</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="btn-secondary active" onclick="changeView('state')">State</button>
+                        <button class="btn-secondary" onclick="changeView('county')">County</button>
+                        <button class="btn-secondary" onclick="changeView('city')">City</button>
+                        <button class="btn-secondary" onclick="changeView('district')">District</button>
+                    </div>
+                </div>
+
+                <!-- Population Range -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Population Range</label>
+                    <input type="range" 
+                           min="0" 
+                           max="100000" 
+                           value="50000" 
+                           class="w-full mb-2" 
+                           id="population-range"
+                           oninput="updatePopulationFilter(this.value)" />
+                    <div class="flex justify-between text-sm opacity-70">
+                        <span>0</span>
+                        <span id="range-value">50k+</span>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Search Area</label>
+                    <div class="relative">
+                        <input type="text" 
+                               id="search-input"
+                               placeholder="Search regions..." 
+                               class="w-full bg-card border border-border rounded-lg px-4 py-2 pl-10"
+                               oninput="searchRegions(this.value)" />
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-50"></i>
+                    </div>
+                    <div id="search-results" class="mt-2 space-y-1"></div>
+                </div>
+
+                <!-- Legend -->
+                <div>
+                    <label class="block text-sm font-medium mb-4">Population Density</label>
+                    <div class="legend-bar mb-3"></div>
+                    <div class="flex justify-between text-sm opacity-70">
+                        <span>0</span>
+                        <span>25k</span>
+                        <span>50k+</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="mt-auto space-y-4">
+                <div class="p-4 bg-opacity-50 bg-card rounded-lg">
+                    <h3 class="text-lg font-semibold mb-2">Total Eligible Voters</h3>
+                    <p class="text-3xl font-bold">247,890</p>
+                    <p class="text-sm mt-1">
+                        <span class="text-green-500">↑ 12.4%</span> from previous year
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="glass-card flex-1 relative">
+            <div id="map" class="absolute inset-0 rounded-lg"></div>
+        </div>
+
+        <!-- Right Panel (hidden by default) -->
+        <div class="glass-card w-80 p-4 hidden" id="detail-panel">
+            <div class="flex justify-between items-start mb-4">
+                <h2 class="text-xl font-bold">Region Details</h2>
+                <button class="opacity-70 hover:opacity-100">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <!-- Content will be populated when region is selected -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Initialize Mapbox
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2FqYS1yIiwiYSI6ImNtZWo1OXRqbzA4NHcydG1zOTNlYjM0d2oifQ.wpPHOdwRETWYP1BA8EB1Hg';
+        
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v11',
+            center: [-120.740135, 47.751076], // Washington State coordinates
+            zoom: 6,
+            pitch: 45,
+            bearing: -17.6,
+            antialias: true
+        });
+
+        // Add navigation controls
+        map.addControl(new mapboxgl.NavigationControl());
+
+        // Sample data for Washington counties
+        const sampleData = {
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    properties: {
+                        name: 'King County',
+                        voter_count: 89450,
+                        percentage: 36.1,
+                        growth: 12.4
+                    },
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [[[-122.5, 47.4], [-121.8, 47.4], [-121.8, 47.8], [-122.5, 47.8], [-122.5, 47.4]]]
+                    }
+                },
+                {
+                    type: 'Feature',
+                    properties: {
+                        name: 'Pierce County',
+                        voter_count: 45230,
+                        percentage: 18.3,
+                        growth: 10.2
+                    },
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [[[-122.8, 46.8], [-122.1, 46.8], [-122.1, 47.2], [-122.8, 47.2], [-122.8, 46.8]]]
+                    }
+                },
+                {
+                    type: 'Feature',
+                    properties: {
+                        name: 'Snohomish County',
+                        voter_count: 32180,
+                        percentage: 13.0,
+                        growth: 9.8
+                    },
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [[[-122.3, 47.8], [-121.6, 47.8], [-121.6, 48.2], [-122.3, 48.2], [-122.3, 47.8]]]
+                    }
+                }
+            ]
+        };
+
+        // Add choropleth layer when map loads
+        map.on('load', () => {
+            // Add source for choropleth data
+            map.addSource('voter-data', {
+                type: 'geojson',
+                data: sampleData
+            });
+
+            // Add fill layer for regions
+            map.addLayer({
+                id: 'voter-regions',
+                type: 'fill',
+                source: 'voter-data',
+                paint: {
+                    'fill-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'voter_count'],
+                        0, 'rgba(101, 163, 13, 0.1)',
+                        10000, 'rgba(101, 163, 13, 0.3)',
+                        25000, 'rgba(101, 163, 13, 0.5)',
+                        50000, 'rgba(101, 163, 13, 0.7)',
+                        100000, 'rgba(101, 163, 13, 0.9)'
+                    ],
+                    'fill-opacity': 0.8
+                }
+            });
+
+            // Add outline layer for regions
+            map.addLayer({
+                id: 'voter-regions-outline',
+                type: 'line',
+                source: 'voter-data',
+                paint: {
+                    'line-color': '#ffffff',
+                    'line-width': 1,
+                    'line-opacity': 0.5
+                }
+            });
+
+            // Add hover effect
+            map.on('mousemove', 'voter-regions', (e) => {
+                if (e.features.length > 0) {
+                    map.getCanvas().style.cursor = 'pointer';
+                    
+                    // Show tooltip
+                    const feature = e.features[0];
+                    new mapboxgl.Popup()
+                        .setLngLat(e.lngLat)
+                        .setHTML(`
+                            <h3 class="font-bold">${feature.properties.name}</h3>
+                            <p>Eligible Voters: ${feature.properties.voter_count.toLocaleString()}</p>
+                        `)
+                        .addTo(map);
+                }
+            });
+
+            // Add click handler for region details
+            map.on('click', 'voter-regions', (e) => {
+                if (e.features.length > 0) {
+                    const feature = e.features[0];
+                    showRegionDetails(feature.properties);
+                }
+            });
+        });
+
+        // Function to show region details panel
+        function showRegionDetails(properties) {
+            const detailPanel = document.getElementById('detail-panel');
+            detailPanel.classList.remove('hidden');
+            
+            // Populate panel with region data
+            detailPanel.querySelector('.space-y-4').innerHTML = `
+                <div>
+                    <h3 class="font-semibold">${properties.name}</h3>
+                    <p class="text-3xl font-bold mt-2">${properties.voter_count.toLocaleString()}</p>
+                    <p class="text-sm opacity-70">Eligible Muslim Voters</p>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>% of Total Population</span>
+                        <span class="font-semibold">${properties.percentage}%</span>
+                    </div>
+                    <div class="w-full bg-card rounded-full h-2">
+                        <div class="bg-primary h-2 rounded-full" style="width: ${properties.percentage}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2">Growth Trend</h4>
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-500">↑ ${properties.growth}%</span>
+                        <span class="opacity-70">from previous year</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to change view type (state/county/city/district)
+        function changeView(viewType) {
+            // Update button states
+            document.querySelectorAll('.btn-secondary').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase() === viewType) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update map layer visibility and zoom level
+            if (viewType === 'state') {
+                map.flyTo({
+                    center: [-120.740135, 47.751076],
+                    zoom: 6
+                });
+            } else if (viewType === 'county') {
+                map.flyTo({
+                    center: [-122.2, 47.3],
+                    zoom: 8
+                });
+            }
+        }
+
+        // Function to update population filter
+        function updatePopulationFilter(value) {
+            const rangeValue = document.getElementById('range-value');
+            rangeValue.textContent = `${(value/1000).toFixed(0)}k+`;
+
+            if (map.getLayer('voter-regions')) {
+                map.setFilter('voter-regions', ['>=', ['get', 'voter_count'], parseInt(value)]);
+            }
+        }
+
+        // Function to search regions
+        function searchRegions(searchText) {
+            const searchResults = document.getElementById('search-results');
+            searchResults.innerHTML = '';
+
+            if (!searchText) return;
+
+            // Filter features based on search text
+            const matches = sampleData.features.filter(feature => 
+                feature.properties.name.toLowerCase().includes(searchText.toLowerCase())
+            );
+
+            // Display results
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'p-2 hover:bg-card cursor-pointer rounded';
+                div.textContent = match.properties.name;
+                div.onclick = () => {
+                    // Center map on selected region
+                    const coords = match.geometry.coordinates[0][0];
+                    map.flyTo({
+                        center: coords,
+                        zoom: 9
+                    });
+                    // Show region details
+                    showRegionDetails(match.properties);
+                };
+                searchResults.appendChild(div);
+            });
+        }
+
+        // Handle state toggles
+        document.querySelectorAll('.view-toggle button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                document.querySelectorAll('.view-toggle button').forEach(b => 
+                    b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Update map view based on selection
+                const view = button.textContent.toLowerCase();
+                if (view === 'washington') {
+                    map.flyTo({
+                        center: [-120.740135, 47.751076],
+                        zoom: 6
+                    });
+                } else if (view === 'california') {
+                    map.flyTo({
+                        center: [-119.417931, 36.778259],
+                        zoom: 5
+                    });
+                } else if (view === 'compare') {
+                    // Create side-by-side view
+                    const container = document.getElementById('map');
+                    container.style.display = 'grid';
+                    container.style.gridTemplateColumns = '1fr 1fr';
+                    container.style.gap = '1rem';
+                    
+                    // Add second map if it doesn't exist
+                    if (!document.getElementById('map2')) {
+                        const map2Div = document.createElement('div');
+                        map2Div.id = 'map2';
+                        container.appendChild(map2Div);
+                        
+                        const map2 = new mapboxgl.Map({
+                            container: 'map2',
+                            style: 'mapbox://styles/mapbox/dark-v11',
+                            center: [-119.417931, 36.778259],
+                            zoom: 5,
+                            pitch: 45,
+                            bearing: -17.6
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muslim Voters Dashboard</title>
+    
+    <!-- Dependencies -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --background: #0f172a;
+            --foreground: #f8fafc;
+            --muted: #64748b;
+            --border: #1e293b;
+            --card: #1e293b;
+            --card-hover: #334155;
+            --primary: #3b82f6;
+            --primary-light: #1d4ed8;
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--card-hover);
+        }
+
+        .btn-secondary.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .stat-value {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+    </style>
+</head>
+<body class="p-6">
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold">Muslim Voters Dashboard</h1>
+            <p class="text-muted">Updated April 2024</p>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <!-- Election Period Selector -->
+            <select class="btn btn-secondary">
+                <option>November 2024</option>
+                <option>August 2024</option>
+                <option>November 2023</option>
+                <option>August 2023</option>
+            </select>
+            
+            <button class="btn btn-primary flex items-center gap-2">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export
+            </button>
+        </div>
+    </header>
+
+    <!-- Filter Bar -->
+    <div class="card p-4 mb-6">
+        <div class="flex items-center justify-between">
+            <!-- Region Type -->
+            <div class="flex gap-2">
+                <button class="btn btn-secondary active">State</button>
+                <button class="btn btn-secondary">County</button>
+                <button class="btn btn-secondary">Congressional</button>
+                <button class="btn btn-secondary">City</button>
+                <button class="btn btn-secondary">School District</button>
+            </div>
+
+            <!-- Search -->
+            <div class="relative">
+                <input type="text" 
+                       placeholder="Search regions..." 
+                       class="btn btn-secondary pl-10 pr-4 w-[300px]">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-12 gap-6">
+        <!-- Election Period Comparison -->
+        <div class="col-span-8 card p-6">
+            <h2 class="text-lg font-semibold mb-4">Voter Turnout by Election Period</h2>
+            <canvas id="turnoutChart" height="200"></canvas>
+            <div class="grid grid-cols-5 gap-4 mt-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold stat-value">76%</div>
+                    <div class="text-sm text-muted">Nov 2024</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold stat-value">68%</div>
+                    <div class="text-sm text-muted">Aug 2024</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold stat-value">72%</div>
+                    <div class="text-sm text-muted">Nov 2023</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold stat-value">65%</div>
+                    <div class="text-sm text-muted">Aug 2023</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold stat-value">--</div>
+                    <div class="text-sm text-muted">Aug 2025</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Voters -->
+        <div class="col-span-4 card p-6">
+            <h2 class="text-lg font-semibold mb-4">Total Muslim Voters</h2>
+            <div class="text-4xl font-bold mb-2 stat-value">247,890</div>
+            <div class="flex items-center gap-2 mb-6">
+                <span class="trend-up">↑ 12.4%</span>
+                <span class="text-muted">from previous election</span>
+            </div>
+            <canvas id="growthChart" height="150"></canvas>
+        </div>
+
+        <!-- Map -->
+        <div class="col-span-8 card" style="height: 500px">
+            <div id="map" class="w-full h-full rounded-lg"></div>
+        </div>
+
+        <!-- Jurisdiction Breakdown -->
+        <div class="col-span-4 space-y-6">
+            <!-- Top Jurisdictions -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">Top Jurisdictions</h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span>King County</span>
+                            <span class="stat-value">89,450</span>
+                        </div>
+                        <div class="h-2 bg-primary/20 rounded-full">
+                            <div class="h-2 bg-primary rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span>7th Congressional</span>
+                            <span class="stat-value">45,230</span>
+                        </div>
+                        <div class="h-2 bg-primary/20 rounded-full">
+                            <div class="h-2 bg-primary rounded-full" style="width: 50%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span>Seattle</span>
+                            <span class="stat-value">32,180</span>
+                        </div>
+                        <div class="h-2 bg-primary/20 rounded-full">
+                            <div class="h-2 bg-primary rounded-full" style="width: 35%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ethnicity Breakdown -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">Ethnicity-Based Turnout</h2>
+                <canvas id="ethnicityChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Initialize Mapbox
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2FqYS1yIiwiYSI6ImNtZWo1OXRqbzA4NHcydG1zOTNlYjM0d2oifQ.wpPHOdwRETWYP1BA8EB1Hg';
+        
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v11',
+            center: [-120.740135, 47.751076],
+            zoom: 6,
+            pitch: 45,
+            bearing: -17.6
+        });
+
+        // Add navigation controls
+        map.addControl(new mapboxgl.NavigationControl());
+
+        // Initialize Charts
+        const turnoutCtx = document.getElementById('turnoutChart').getContext('2d');
+        new Chart(turnoutCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Aug 2023', 'Nov 2023', 'Aug 2024', 'Nov 2024', 'Aug 2025'],
+                datasets: [{
+                    label: 'Muslim Voter Turnout',
+                    data: [65, 72, 68, 76, null],
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: value => value + '%'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        const growthCtx = document.getElementById('growthChart').getContext('2d');
+        new Chart(growthCtx, {
+            type: 'line',
+            data: {
+                labels: ['2023', '2024', '2025'],
+                datasets: [{
+                    data: [220000, 247890, null],
+                    borderColor: '#3b82f6',
+                    backgroundColor: '#3b82f620',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        const ethnicityCtx = document.getElementById('ethnicityChart').getContext('2d');
+        new Chart(ethnicityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['South Asian', 'Middle Eastern', 'African', 'Southeast Asian', 'Other'],
+                datasets: [{
+                    data: [45, 30, 15, 7, 3],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#60a5fa',
+                        '#93c5fd',
+                        '#bfdbfe',
+                        '#dbeafe'
+                    ]
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Handle button clicks
+        document.querySelectorAll('.btn-secondary').forEach(button => {
+            button.addEventListener('click', () => {
+                const parent = button.parentElement;
+                parent.querySelectorAll('.btn-secondary').forEach(b => 
+                    b.classList.remove('active'));
+                button.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

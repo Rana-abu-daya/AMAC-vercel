@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muslim Voters Dashboard</title>
+    
+    <!-- Dependencies -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Core colors */
+            --background: #fafafa;
+            --foreground: #111827;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            
+            /* Semantic colors */
+            --success: #059669;
+            --success-light: #d1fae5;
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+            --info: #3b82f6;
+            --info-light: #dbeafe;
+            
+            /* Component colors */
+            --card: #ffffff;
+            --card-hover: #f9fafb;
+            --card-border: #f3f4f6;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #111827;
+                --foreground: #f9fafb;
+                --muted: #9ca3af;
+                --border: #1f2937;
+                
+                --success-light: #065f46;
+                --danger-light: #991b1b;
+                --info-light: #1e40af;
+                
+                --card: #1f2937;
+                --card-hover: #374151;
+                --card-border: #374151;
+            }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+        }
+
+        .metric-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            transition: all 0.2s;
+        }
+
+        .metric-card:hover {
+            background: var(--card-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        .trend-positive {
+            color: var(--success);
+            background: var(--success-light);
+        }
+
+        .trend-negative {
+            color: var(--danger);
+            background: var(--danger-light);
+        }
+
+        .filter-button {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--foreground);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-button:hover {
+            background: var(--card-hover);
+        }
+
+        .filter-button.active {
+            background: var(--info);
+            color: white;
+            border-color: var(--info);
+        }
+
+        .map-container {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--muted);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-6 space-y-6">
+    <!-- Header & Navigation -->
+    <header class="space-y-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Muslim Voters Dashboard</h1>
+                <p class="text-muted mt-1">Updated April 2024</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Date Range Selector -->
+                <div class="filter-button flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>Last 12 months</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </div>
+                <!-- Export Button -->
+                <button class="filter-button flex items-center gap-2">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Export</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <nav class="flex items-center justify-between p-4 metric-card">
+            <!-- Region Selector -->
+            <div class="flex items-center gap-4">
+                <div class="space-x-2">
+                    <button class="filter-button active">Washington</button>
+                    <button class="filter-button">California</button>
+                    <button class="filter-button">Compare</button>
+                </div>
+                <div class="h-6 w-px bg-border"></div>
+                <div class="space-x-2">
+                    <button class="filter-button active">County</button>
+                    <button class="filter-button">City</button>
+                    <button class="filter-button">District</button>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="relative">
+                <input type="text" 
+                       placeholder="Search regions..." 
+                       class="pl-10 pr-4 py-2 rounded-lg border border-border bg-card"
+                       style="width: 300px">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="grid grid-cols-12 gap-6">
+        <!-- Key Metrics -->
+        <div class="col-span-12 grid grid-cols-3 gap-6">
+            <!-- Total Voters -->
+            <div class="metric-card p-6">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-muted">Total Eligible Voters</p>
+                        <h2 class="text-4xl font-bold mt-2 stat-value">247,890</h2>
+                    </div>
+                    <span class="trend-positive text-sm font-medium px-2 py-1 rounded">+12.4%</span>
+                </div>
+                <div class="mt-4">
+                    <canvas id="voterTrendChart" height="60"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Counties -->
+            <div class="metric-card p-6">
+                <p class="text-sm font-medium text-muted mb-4">Top Counties</p>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium">King County</span>
+                                <span class="font-medium stat-value">89,450</span>
+                            </div>
+                            <div class="h-2 bg-info-light rounded-full">
+                                <div class="h-2 bg-info rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium">Pierce County</span>
+                                <span class="font-medium stat-value">45,230</span>
+                            </div>
+                            <div class="h-2 bg-info-light rounded-full">
+                                <div class="h-2 bg-info rounded-full" style="width: 50%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium">Snohomish County</span>
+                                <span class="font-medium stat-value">32,180</span>
+                            </div>
+                            <div class="h-2 bg-info-light rounded-full">
+                                <div class="h-2 bg-info rounded-full" style="width: 35%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Population Representation -->
+            <div class="metric-card p-6">
+                <p class="text-sm font-medium text-muted mb-4">Population Representation</p>
+                <div class="flex items-center justify-center h-[120px]">
+                    <canvas id="representationChart"></canvas>
+                </div>
+                <p class="text-sm text-center mt-4">
+                    Muslims represent <span class="font-semibold">3.2%</span> of eligible voters
+                </p>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="col-span-12 grid grid-cols-12 gap-6">
+            <!-- Map -->
+            <div class="col-span-9">
+                <div class="metric-card" style="height: 600px">
+                    <div id="map" class="w-full h-full rounded-lg"></div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-span-3 space-y-6">
+                <!-- Population Range -->
+                <div class="metric-card p-6">
+                    <p class="text-sm font-medium text-muted mb-4">Population Range</p>
+                    <input type="range" 
+                           min="0" 
+                           max="100000" 
+                           value="50000" 
+                           class="w-full mb-4" />
+                    <div class="flex justify-between text-sm text-muted">
+                        <span>0</span>
+                        <span>50k+</span>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="metric-card p-6">
+                    <p class="text-sm font-medium text-muted mb-4">Density Scale</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">40,000+</span>
+                            <div class="w-24 h-4 bg-info rounded"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">30,000 - 40,000</span>
+                            <div class="w-24 h-4 bg-info opacity-80 rounded"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">20,000 - 30,000</span>
+                            <div class="w-24 h-4 bg-info opacity-60 rounded"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">10,000 - 20,000</span>
+                            <div class="w-24 h-4 bg-info opacity-40 rounded"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">0 - 10,000</span>
+                            <div class="w-24 h-4 bg-info opacity-20 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Initialize Mapbox
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2FqYS1yIiwiYSI6ImNtZWo1OXRqbzA4NHcydG1zOTNlYjM0d2oifQ.wpPHOdwRETWYP1BA8EB1Hg';
+        
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v11',
+            center: [-120.740135, 47.751076],
+            zoom: 6,
+            pitch: 45,
+            bearing: -17.6
+        });
+
+        // Add navigation controls
+        map.addControl(new mapboxgl.NavigationControl());
+
+        // Initialize Charts
+        const voterTrendCtx = document.getElementById('voterTrendChart').getContext('2d');
+        new Chart(voterTrendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    data: [210000, 215000, 220000, 218000, 225000, 230000, 235000, 240000, 242000, 245000, 247000, 247890],
+                    borderColor: '#3b82f6',
+                    backgroundColor: '#dbeafe',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        display: false
+                    }
+                },
+                maintainAspectRatio: false
+            }
+        });
+
+        const representationCtx = document.getElementById('representationChart').getContext('2d');
+        new Chart(representationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Muslim Voters', 'Other Voters'],
+                datasets: [{
+                    data: [3.2, 96.8],
+                    backgroundColor: ['#3b82f6', '#dbeafe']
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                cutout: '70%',
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+</body>
+</html>
