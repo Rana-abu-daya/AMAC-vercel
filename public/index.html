@@ -1369,6 +1369,17 @@
           refreshKPIs('Nov 2024');
           refreshTurnoutChart();
         });
+
+        async function loadTotalVoters() {
+  const response = await fetch('/api/query');
+  const data = await response.json();
+
+  document.querySelectorAll('.stat-value')[0].textContent =
+    data.total.toLocaleString();
+}
+
+window.addEventListener('DOMContentLoaded', loadTotalVoters);
+
     </script>
 
 </body>
