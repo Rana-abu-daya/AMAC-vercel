@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@clickhouse/client": "^0.2.7",
-    "@vercel/node": "^3.0.0"
+
   }
 }
