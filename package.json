@@ -1,0 +1,8 @@
+{
+  "name": "amac-vercel",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@clickhouse/client": "^0.2.7"
+  }
+}
