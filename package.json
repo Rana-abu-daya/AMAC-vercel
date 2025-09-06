@@ -1,8 +1,8 @@
 {
   "name": "amac-vercel",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
-
+    "@vercel/node": "^3.0.0"
   }
 }
