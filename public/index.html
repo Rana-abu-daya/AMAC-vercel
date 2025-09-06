@@ -1332,26 +1332,18 @@
     </script>
 
     <script>
-        function normalizeElection(label) {
-          // "Nov 2024" -> "Nov 2024" (server parses it); keeping helper if you need later.
-          return label;
-        }
-
-        async function fetchElectionMetrics(electionLabel) {
+        async function refreshKPIs(electionLabel) {
           const res = await fetch('/api/election-metrics', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ election: normalizeElection(electionLabel) })
+            body: JSON.stringify({ election: electionLabel })
           });
-          return res.json();
-        }
+          const m = await res.json();
 
-        async function refreshKPIs(electionLabel) {
-          const m = await fetchElectionMetrics(electionLabel);
           document.getElementById('kpi-total').textContent  = Number(m.total_voters || 0).toLocaleString();
           document.getElementById('kpi-turnout').textContent= (m.turnout_pct ?? 0) + '%';
           document.getElementById('kpi-new').textContent    = Number(m.new_regs || 0).toLocaleString();
-          document.getElementById('kpi-active').textContent = `${m.active_legis || 0}`;
+          document.getElementById('kpi-active').textContent = `${m.active_legis} of ${m.total_legis}`;
         }
 
         async function refreshTurnoutChart() {
@@ -1364,23 +1356,13 @@
           }
         }
 
-        // Call once on load:
-        window.addEventListener('load', () => {
+        // Run on page load
+        window.addEventListener('DOMContentLoaded', () => {
           refreshKPIs('Nov 2024');
           refreshTurnoutChart();
         });
-
-        async function loadTotalVoters() {
-  const response = await fetch('/api/query');
-  const data = await response.json();
-
-  document.querySelectorAll('.stat-value')[0].textContent =
-    data.total.toLocaleString();
-}
-
-window.addEventListener('DOMContentLoaded', loadTotalVoters);
-
     </script>
+
 
 </body>
 </html>
