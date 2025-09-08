@@ -341,10 +341,12 @@
                     <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
                         <div class="py-1">
                             <template x-for="election in elections" :key="election">
-                                <button type="button"
+                                <button
+                                        type="button"
                                         @click="updateElection(election); open = false"
-                                        class="w-full text-left px-3 py-1.5 hover:bg-gray-50 text-sm">
-                                    {{ election }}
+                                        class="w-full text-left px-3 py-1.5 hover:bg-gray-50 text-sm"
+                                        :class="{'text-primary font-medium': selectedElection === election}"
+                                        x-text="election">
                                 </button>
 
                             </template>
@@ -1210,7 +1212,7 @@
      body: JSON.stringify({ election: electionLabel })
    });
    const m = await res.json();
-   consol.log(m)
+   console.log(m)
 
     document.getElementById('kpi-total').textContent  = Number(m.total_voters || 0).toLocaleString();
     document.getElementById('kpi-turnout').textContent= (m.turnout_pct ?? 0) + '%';
