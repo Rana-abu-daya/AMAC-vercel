@@ -1,6 +1,5 @@
 // api/turnout-series.js
-import { createClient } from '@clickhouse/client';
-
+import { clickhouse } from '../lib/clickhouse.js';
 const client = createClient({
   host: process.env.CLICKHOUSE_HOST,
   username: process.env.CLICKHOUSE_USER,

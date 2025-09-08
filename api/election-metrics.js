@@ -1,6 +1,5 @@
 // api/election-metrics.js
-import { createClient } from '@clickhouse/client-web';
-
+import { clickhouse } from '../lib/clickhouse.js';
 const client = createClient({
   host: process.env.CLICKHOUSE_HOST,
   username: process.env.CLICKHOUSE_USER,
