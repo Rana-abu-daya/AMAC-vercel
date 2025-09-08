@@ -8,6 +8,6 @@
     "build": "echo 'No build step needed'"
   },
   "dependencies": {
-    "@clickhouse/client": "^0.2.8"
+    "@clickhouse/client": "^0.2.10"
   }
 }
