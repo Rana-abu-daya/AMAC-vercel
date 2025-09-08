@@ -13,21 +13,28 @@ const COHORT = "multiSearchAny(lower(llama_names), ['muslim','revert'])";
 
 export default async function handler() {
   try {
-    const rows = await client.query({
+    const result = await client.query({
       query: `
-        SELECT * FROM (
+        SELECT *
+        FROM (
           SELECT 'Aug 2024' AS label,
-                 round(100 * countIf(lower(Aug_2024_Status) = 'voted') / count(), 0) AS pct
+                 round(100 * countIf(lower(Aug_2024_Status) = 'voted') / count(), 0) AS pct,
+                 202408 AS sort_key
           FROM ${TABLE} WHERE ${COHORT}
+
           UNION ALL
+
           SELECT 'Nov 2024' AS label,
-                 round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 0) AS pct
+                 round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 0) AS pct,
+                 202411 AS sort_key
           FROM ${TABLE} WHERE ${COHORT}
         )
-        ORDER BY label
+        ORDER BY sort_key
       `,
       format: 'JSONEachRow',
-    }).then(r => r.json());
+    });
+
+    const rows = await result.json();
 
     return new Response(
       JSON.stringify({

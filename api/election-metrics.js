@@ -13,10 +13,11 @@ const COHORT = "multiSearchAny(lower(llama_names), ['muslim','revert'])";
 
 export default async function handler(req) {
   try {
-    const { election = 'Nov 2024' } = req.method === 'POST' ? await req.json() : {};
+    const { election = 'Nov 2024' } =
+      req.method === 'POST' ? await req.json() : {};
 
-    // --- Total Voters, New Registrations, Active Districts
-    const base = await client.query({
+    // --- Base metrics: total voters, new regs, active districts
+    const baseResult = await client.query({
       query: `
         SELECT
           count() AS total_voters,
@@ -26,40 +27,43 @@ export default async function handler(req) {
         WHERE ${COHORT}
       `,
       format: 'JSONEachRow',
-    }).then(r => r.json());
-
+    });
+    const base = await baseResult.json();
     const { total_voters = 0, new_regs = 0, active_legis = 0 } = base[0] || {};
 
-    // --- Turnout depends on election
-    let turnout_pct = 0;
+    // --- Turnout
+    let turnoutQuery = '';
     if (election === 'Nov 2024') {
-      const q = await client.query({
-        query: `
-          SELECT round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 1) AS turnout_pct
-          FROM ${TABLE}
-          WHERE ${COHORT}
-        `,
-        format: 'JSONEachRow',
-      }).then(r => r.json());
-      turnout_pct = q[0]?.turnout_pct || 0;
+      turnoutQuery = `
+        SELECT round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 1) AS turnout_pct
+        FROM ${TABLE}
+        WHERE ${COHORT}
+      `;
     } else if (election === 'Aug 2024') {
-      const q = await client.query({
-        query: `
-          SELECT round(100 * countIf(lower(Aug_2024_Status) = 'voted') / count(), 1) AS turnout_pct
-          FROM ${TABLE}
-          WHERE ${COHORT}
-        `,
-        format: 'JSONEachRow',
-      }).then(r => r.json());
-      turnout_pct = q[0]?.turnout_pct || 0;
+      turnoutQuery = `
+        SELECT round(100 * countIf(lower(Aug_2024_Status) = 'voted') / count(), 1) AS turnout_pct
+        FROM ${TABLE}
+        WHERE ${COHORT}
+      `;
     }
 
+    let turnout_pct = 0;
+    if (turnoutQuery) {
+      const turnoutResult = await client.query({
+        query: turnoutQuery,
+        format: 'JSONEachRow',
+      });
+      const turnout = await turnoutResult.json();
+      turnout_pct = turnout[0]?.turnout_pct || 0;
+    }
+
+    // --- Response
     return new Response(
       JSON.stringify({
         total_voters,
         new_regs,
         active_legis,
-        total_legis: 49,
+        total_legis: 49, // hardcoded total
         turnout_pct,
       }),
       { headers: { 'content-type': 'application/json' } }
