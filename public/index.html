@@ -1209,38 +1209,46 @@
      headers: { 'content-type': 'application/json' },
      body: JSON.stringify({ election: electionLabel })
    });
+
+   if (!res.ok) {
+     console.error("API error:", res.status, await res.text());
+     return;
+   }
+
    const m = await res.json();
-   consol.log(m)
-     document.getElementById('kpi-total').textContent  = Number(m.total_voters || 0).toLocaleString();
-     document.getElementById('kpi-turnout').textContent= (m.turnout_pct ?? 0) + '%';
-     document.getElementById('kpi-new').textContent    = Number(m.new_regs || 0).toLocaleString();
-     document.getElementById('kpi-active').textContent = `${m.active_legis} of ${m.total_legis}`;
-   }
+   console.log("Election metrics:", m);
+
+   document.getElementById('kpi-total').textContent  = Number(m.total_voters || 0).toLocaleString();
+   document.getElementById('kpi-turnout').textContent= (m.turnout_pct ?? 0) + '%';
+   document.getElementById('kpi-new').textContent    = Number(m.new_regs || 0).toLocaleString();
+   document.getElementById('kpi-active').textContent = `${m.active_legis || 0} of ${m.total_legis || 0}`;
+ }
 
 
-           async function refreshTurnoutChart(election) {
-     const res = await fetch('/api/turnout-series');
-     const { labels, data } = await res.json();
 
-     if (window.turnoutChart) {
-       window.turnoutChart.data.labels = labels;
-       window.turnoutChart.data.datasets[0].data = data;
+            async function refreshTurnoutChart(election) {
+      const res = await fetch('/api/turnout-series');
+      const { labels, data } = await res.json();
 
-       // Highlight the selected election in dark blue
-       window.turnoutChart.data.datasets[0].backgroundColor = labels.map(
-         (label) => label === election ? '#1d4ed8' : '#2563eb'
-       );
+      if (window.turnoutChart) {
+        window.turnoutChart.data.labels = labels;
+        window.turnoutChart.data.datasets[0].data = data;
 
-       window.turnoutChart.update();
-     }
-   }
+        // Highlight the selected election in dark blue
+        window.turnoutChart.data.datasets[0].backgroundColor = labels.map(
+          (label) => label === election ? '#1d4ed8' : '#2563eb'
+        );
+
+        window.turnoutChart.update();
+      }
+    }
 
 
-           // Run on page load
-           window.addEventListener('DOMContentLoaded', () => {
-             refreshKPIs('Nov 2024');
-             refreshTurnoutChart();
-           });
+            // Run on page load
+            window.addEventListener('DOMContentLoaded', () => {
+              refreshKPIs('Nov 2024');
+              refreshTurnoutChart();
+            });
     </script>
 
 
