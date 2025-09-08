@@ -2,12 +2,16 @@
 import { createClient } from '@clickhouse/client';
 
 const client = createClient({
-  host: process.env.CLICKHOUSE_URL,      // e.g. https://pod38uxp1w.us-west-2.aws.clickhouse.cloud:8443
-  username: process.env.CLICKHOUSE_USER, // default
+  host: process.env.CLICKHOUSE_URL,       // must be https://...:8443
+  username: process.env.CLICKHOUSE_USER,  // usually "default"
   password: process.env.CLICKHOUSE_PASSWORD,
-  database: 'default',                   // or your db name
-  tls: { rejectUnauthorized: true }      // important for Vercel/ClickHouse Cloud
+  database: 'default',
+  // Force secure TLS connection
+  tls: {
+    rejectUnauthorized: false, // try false if Vercel blocks CA, or true if you uploaded CA cert
+  }
 });
+
 console.log("Connecting to", process.env.CLICKHOUSE_URL);
 const TABLE = 'silver_sos_2024_09_voters_llama2_3_4';
 const COHORT = "multiSearchAny(lower(llama_names), ['muslim','revert'])";

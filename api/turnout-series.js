@@ -11,6 +11,7 @@ const client = createClient({
     rejectUnauthorized: false, // try false if Vercel blocks CA, or true if you uploaded CA cert
   }
 });
+console.log("Connecting to", process.env.CLICKHOUSE_URL);
 
 
 const TABLE = 'silver_sos_2024_09_voters_llama2_3_4';
