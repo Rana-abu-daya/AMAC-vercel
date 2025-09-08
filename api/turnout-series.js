@@ -1,9 +1,12 @@
 // api/turnout-series.js
-import { clickhouse } from '../lib/clickhouse.js';
+import { createClient } from '@clickhouse/client';
+
 const client = createClient({
-  host: process.env.CLICKHOUSE_HOST,
-  username: process.env.CLICKHOUSE_USER,
+  host: process.env.CLICKHOUSE_URL,      // e.g. https://pod38uxp1w.us-west-2.aws.clickhouse.cloud:8443
+  username: process.env.CLICKHOUSE_USER, // default
   password: process.env.CLICKHOUSE_PASSWORD,
+  database: 'default',                   // or your db name
+  tls: { rejectUnauthorized: true }      // important for Vercel/ClickHouse Cloud
 });
 
 const TABLE = 'silver_sos_2024_09_voters_llama2_3_4';
