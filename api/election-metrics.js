@@ -1,5 +1,4 @@
 // api/election-metrics.js
-export const config = { runtime: 'edge' };
 import { createClient } from '@clickhouse/client-web';
 
 const client = createClient({
