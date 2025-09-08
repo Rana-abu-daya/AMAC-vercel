@@ -703,168 +703,34 @@
             initializeCharts();
         });
 
-        function initializeCharts() {
-            // Initialize turnout chart
-            const turnoutCtx = document.getElementById('turnoutChart');
-            if (turnoutCtx) {
-                new Chart(turnoutCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Aug 23', 'Nov 23', 'Aug 24', 'Nov 24', 'Aug 25'],
-                        datasets: [{
-                            data: [58, 65, 72, 68, 76, 0],
-                            backgroundColor: '#2563eb',
-                            borderRadius: {
-                                topLeft: 4,
-                                topRight: 4
-                            },
-                            barThickness: 30,
-                            barPercentage: 0.6,
-                            categoryPercentage: 0.8,
-                            hoverBackgroundColor: '#1d4ed8'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        layout: {
-                            padding: {
-                                top: 20,
-                                right: 20,
-                                bottom: 20,
-                                left: 20
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100,
-                                grid: {
-                                    color: '#f3f4f6',
-                                    drawBorder: false
-                                },
-                                border: {
-                                    display: false
-                                },
-                                ticks: {
-                                    color: '#4b5563',
-                                    font: {
-                                        family: "'Inter', sans-serif",
-                                        size: 12
-                                    },
-                                    padding: 8,
-                                    callback: function(value) {
-                                        return value + '%';
-                                    }
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                border: {
-                                    display: false
-                                },
-                                ticks: {
-                                    color: '#4b5563',
-                                    font: {
-                                        family: "'Inter', sans-serif",
-                                        size: 12
-                                    },
-                                    padding: 8
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: '#1f2937',
-                                titleFont: {
-                                    family: "'Inter', sans-serif",
-                                    size: 14,
-                                    weight: '600'
-                                },
-                                bodyFont: {
-                                    family: "'Inter', sans-serif",
-                                    size: 13
-                                },
-                                padding: 12,
-                                cornerRadius: 8,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.parsed.y + '% Turnout';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+       function initializeCharts() {
+  const turnoutCtx = document.getElementById('turnoutChart');
+  if (turnoutCtx) {
+    window.turnoutChart = new Chart(turnoutCtx, {
+      type: 'bar',
+      data: {
+        labels: [], // start empty, fill later
+        datasets: [{
+          label: "Turnout %",
+          data: [],
+          backgroundColor: '#2563eb',
+          borderRadius: { topLeft: 4, topRight: 4 },
+          barThickness: 30,
+          hoverBackgroundColor: '#1d4ed8'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, max: 100 }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+}
 
-            // Initialize ethnicity chart
-            const ethnicityCtx = document.getElementById('ethnicityChart');
-            if (ethnicityCtx) {
-                new Chart(ethnicityCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['South Asian', 'Middle Eastern', 'African', 'Southeast Asian'],
-                        datasets: [{
-                            data: [45, 30, 15, 10],
-                            backgroundColor: [
-                                '#4361EE',  // South Asian (blue)
-                                '#3A0CA3',  // Middle Eastern (deep purple)
-                                '#7209B7',  // African (medium purple)
-                                '#B5179E'   // Southeast Asian (light purple)
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                align: 'center',
-                                labels: {
-                                    color: '#4b5563',
-                                    padding: 20,
-                                    usePointStyle: true,
-                                    pointStyle: 'circle',
-                                    font: {
-                                        family: "'Inter', sans-serif",
-                                        size: 12
-                                    },
-                                    boxWidth: 8
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: '#1f2937',
-                                titleFont: {
-                                    family: "'Inter', sans-serif",
-                                    size: 14,
-                                    weight: '600'
-                                },
-                                bodyFont: {
-                                    family: "'Inter', sans-serif",
-                                    size: 13
-                                },
-                                padding: 12,
-                                cornerRadius: 8,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.label + ': ' + context.parsed + '%';
-                                    }
-                                }
-                            }
-                        },
-                        cutout: '70%'
-                    }
-                });
-            }
-        }
 
         // Simulate loading state
         window.addEventListener('load', () => {
