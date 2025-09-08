@@ -11,30 +11,29 @@ const client = createClient({
 
 export default async function handler(req, res) {
   try {
-    const { election } = req.body;
+    const election = req.body?.election || 'Nov 2024';
 
-    let whereClause = "";
-    if (election === "Aug 2024") {
-      whereClause = "lower(Aug_2024_Status) = 'voted'";
-    } else if (election === "Nov 2024") {
-      whereClause = "lower(ballot_status) = 'accepted'";
-    }
+    const whereClause = election === 'Aug 2024'
+      ? "lower(Aug_2024_Status) = 'voted'"
+      : "lower(ballot_status) = 'accepted'";
 
     const query = `
       SELECT
         count() AS total_voters,
         round(100 * countIf(${whereClause}) / count(), 1) AS turnout_pct,
-        countIf(new_reg = 1) AS new_regs,
+        countIf(is_new_reg = 1) AS new_regs,
         uniq(legis_district) AS active_legis,
-        (SELECT uniq(legis_district) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
+        uniq(legis_district) AS total_legis
       FROM silver_sos_2024_09_voters_llama2_3_4
       WHERE multiSearchAny(lower(llama_names), ['muslim','revert'])
     `;
 
     const rows = await client.query({ query, format: 'JSONEachRow' }).then(r => r.json());
+    const m = rows[0] || {};
 
-    res.status(200).json(rows[0] || {});
+    res.status(200).json(m);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
+
