@@ -341,12 +341,12 @@
                     <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
                         <div class="py-1">
                             <template x-for="election in elections" :key="election">
-                                <button
+                                <button type="button"
                                         @click="updateElection(election); open = false"
-                                        class="w-full text-left px-3 py-1.5 hover:bg-gray-50 text-sm"
-                                        :class="{'text-primary font-medium': selectedElection === election}"
-                                        x-text="election">
+                                        class="w-full text-left px-3 py-1.5 hover:bg-gray-50 text-sm">
+                                    {{ election }}
                                 </button>
+
                             </template>
                         </div>
                     </div>
