@@ -1,6 +1,5 @@
 // api/turnout-series.js
-export const config = { runtime: 'edge' };
-import { createClient } from '@clickhouse/client-web';
+import { createClient } from '@clickhouse/client';
 
 const client = createClient({
   host: process.env.CLICKHOUSE_HOST,
@@ -11,39 +10,29 @@ const client = createClient({
 const TABLE = 'silver_sos_2024_09_voters_llama2_3_4';
 const COHORT = "multiSearchAny(lower(llama_names), ['muslim','revert'])";
 
-export default async function handler() {
+export default async function handler(req, res) {
   try {
-    const result = await client.query({
+    const rows = await client.query({
       query: `
-        SELECT *
-        FROM (
+        SELECT * FROM (
           SELECT 'Aug 2024' AS label,
-                 round(100 * countIf(lower(Aug_2024_Status) = 'voted') / count(), 0) AS pct,
-                 202408 AS sort_key
+                 round(100 * countIf(lower(Aug_2024_Status) = 'voted') / count(), 0) AS pct
           FROM ${TABLE} WHERE ${COHORT}
-
           UNION ALL
-
           SELECT 'Nov 2024' AS label,
-                 round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 0) AS pct,
-                 202411 AS sort_key
+                 round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 0) AS pct
           FROM ${TABLE} WHERE ${COHORT}
         )
-        ORDER BY sort_key
+        ORDER BY label
       `,
       format: 'JSONEachRow',
+    }).then(r => r.json());
+
+    res.status(200).json({
+      labels: rows.map(r => r.label),
+      data: rows.map(r => Number(r.pct)),
     });
-
-    const rows = await result.json();
-
-    return new Response(
-      JSON.stringify({
-        labels: rows.map(r => r.label),
-        data: rows.map(r => Number(r.pct)),
-      }),
-      { headers: { 'content-type': 'application/json' } }
-    );
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 }
