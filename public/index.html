@@ -1207,7 +1207,7 @@
     <script>
         async function refreshKPIs(electionLabel) {
    const res = await fetch('/api/election-metrics', {
-     method: 'POST',
+     method: 'GET',
      headers: { 'content-type': 'application/json' },
      body: JSON.stringify({ election: electionLabel })
    });
