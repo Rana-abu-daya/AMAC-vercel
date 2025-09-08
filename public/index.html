@@ -14,7 +14,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-latest.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <script type="module" src="/query.js"></script>
+
     <style>
         :root {
             --surface-0: #f9fafb;
@@ -881,7 +882,7 @@
 
         // Initialize Mapbox
         mapboxgl.accessToken = 'pk.eyJ1Ijoic2FqYS1yIiwiYSI6ImNtZXRjaHhiajAwcjgya3B5cjJqaDljZGwifQ.o1uEOA7pV2RB_0A8jicwqg';
-        
+
         try {
             const map = new mapboxgl.Map({
                 container: 'map',
@@ -973,10 +974,10 @@
                 map.on('mousemove', 'voter-choropleth', (e) => {
                     if (e.features.length > 0) {
                         const feature = e.features[0];
-                        
+
                         // Update hover effect
                         map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], feature.properties.name]);
-                        
+
                         // Show popup
                         popup.setLngLat(e.lngLat)
                             .setHTML(`
@@ -1036,12 +1037,10 @@
         }
 
         // Add navigation controls
-       map.on("load", () => {
-  // your layers & sources here…
-
-  // ✅ Safe to add controls only after the map is loaded
+   map.on("load", () => {
   map.addControl(new mapboxgl.NavigationControl());
 });
+
 
 
         // Initialize Charts
@@ -1229,7 +1228,7 @@
             turnoutChart.data.labels = ['Nov 24'];
             turnoutChart.data.datasets[0].data = [76];
             turnoutChart.update();
-            
+
             // Update KPI cards
             document.querySelector('.stat-value').textContent = '76%';
             document.querySelector('.text-success').innerHTML = `
@@ -1276,7 +1275,7 @@
         function applyDateRange() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
-            
+
             if (!startDate || !endDate) {
                 alert('Please select both start and end dates');
                 return;
@@ -1285,7 +1284,7 @@
             // Format dates for display
             const formattedStartDate = new Date(startDate).toLocaleDateString();
             const formattedEndDate = new Date(endDate).toLocaleDateString();
-            
+
             // Update the displayed date range
             const dateRangeElement = document.querySelector('[x-data*="dateRange"]');
             if (dateRangeElement) {
@@ -1307,7 +1306,7 @@
                 labels: ['Aug 23', 'Nov 23', 'Aug 24', 'Nov 24'],
                 data: [65, 72, 68, 76]
             };
-            
+
             // Filter data based on date range
             // This is simplified - you should use proper date comparison
             return allData;
@@ -1329,7 +1328,7 @@
                 const overlay = document.createElement('div');
                 overlay.className = 'absolute inset-0 bg-surface-0 bg-opacity-50 flex items-center justify-center';
                 overlay.innerHTML = '<div class="spinner"></div>';
-                
+
                 setTimeout(() => {
                     overlay.remove();
                 }, 500);
