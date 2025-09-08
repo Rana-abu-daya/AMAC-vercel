@@ -16,21 +16,25 @@ export default async function handler(req, res) {
       ORDER BY label
     `;
 
-    const response = await fetch(process.env.CLICKHOUSE_URL, {
+    const response = await fetch(`${process.env.CLICKHOUSE_URL}/?database=default&default_format=JSONEachRow`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain',
       },
-      body: JSON.stringify({
-        query,
-        user: process.env.CLICKHOUSE_USER,
-        password: process.env.CLICKHOUSE_PASSWORD,
-        format: 'JSONEachRow',
-      }),
+      body: query,
+      // ClickHouse Cloud needs Basic Auth
+      // format: user:password in Authorization header
+      // or pass ?user=...&password=...
+      // safer way:
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(
+          `${process.env.CLICKHOUSE_USER}:${process.env.CLICKHOUSE_PASSWORD}`
+        ).toString('base64'),
+      }
     });
 
     if (!response.ok) {
-      throw new Error(`ClickHouse error: ${response.statusText}`);
+      throw new Error(`ClickHouse error: ${response.status} ${response.statusText}`);
     }
 
     const rows = await response.json();
@@ -40,7 +44,7 @@ export default async function handler(req, res) {
       data: rows.map(r => Number(r.pct)),
     });
   } catch (err) {
-    console.error('Proxy error:', err);
+    console.error('ClickHouse proxy error:', err);
     res.status(500).json({ error: err.message });
   }
 }
