@@ -3,7 +3,7 @@ const fetch = require("node-fetch");
 const { HttpsProxyAgent } = require("https-proxy-agent");
 
 const FIXIE_URL = process.env.FIXIE_URL;
-const CLICKHOUSE_URL = process.env.CLICKHOUSE_URL; // like https://podxxxx.clickhouse.cloud:8443/?database=default
+const CLICKHOUSE_URL = process.env.CLICKHOUSE_URL;
 const CLICKHOUSE_USER = process.env.CLICKHOUSE_USER || "default";
 const CLICKHOUSE_PASSWORD = process.env.CLICKHOUSE_PASSWORD;
 
@@ -23,7 +23,8 @@ module.exports = async (req, res) => {
         FROM ${TABLE} WHERE ${COHORT}
       )
       ORDER BY label
-    `;
+      FORMAT JSONEachRow
+    `; // 👈 force JSON output
 
     const response = await fetch(CLICKHOUSE_URL, {
       method: "POST",
@@ -40,11 +41,18 @@ module.exports = async (req, res) => {
     });
 
     if (!response.ok) {
-      const errText = await response.text(); // real error from ClickHouse
+      const errText = await response.text();
       throw new Error(`ClickHouse HTTP ${response.status}: ${errText}`);
     }
 
-    const rows = await response.json();
+    const text = await response.text();
+    console.log("Raw ClickHouse response:", text); // 👈 debug
+
+    // Parse JSONEachRow (line-delimited JSON objects)
+    const rows = text
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
 
     res.status(200).json({
       labels: rows.map((r) => r.label),
