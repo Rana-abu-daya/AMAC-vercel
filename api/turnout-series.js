@@ -1,4 +1,5 @@
 // api/turnout-series.js
+export const config = { runtime: 'edge' };
 import { createClient } from '@clickhouse/client';
 
 const client = createClient({

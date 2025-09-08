@@ -1036,7 +1036,13 @@
         }
 
         // Add navigation controls
-        map.addControl(new mapboxgl.NavigationControl());
+       map.on("load", () => {
+  // your layers & sources here…
+
+  // ✅ Safe to add controls only after the map is loaded
+  map.addControl(new mapboxgl.NavigationControl());
+});
+
 
         // Initialize Charts
         // Date range picker modal
