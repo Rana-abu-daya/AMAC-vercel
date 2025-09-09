@@ -17,8 +17,8 @@ export default async function handler(req, res) {
          count() AS total_voters,
          round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 0) AS turnout_pct,
          countIf(toYear(registrationdate) = 2024) AS new_regs,
-         uniqExact(legislative_district) AS active_legis,
-         (SELECT uniqExact(legislative_district) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
+         uniqExact(legislativedistrict) AS active_legis,
+         (SELECT uniqExact(legislativedistrict) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
        FROM silver_sos_2024_09_voters_llama2_3_4
        WHERE multiSearchAny(lower(llama_names), ['muslim', 'revert'])
        FORMAT JSON
@@ -30,8 +30,8 @@ export default async function handler(req, res) {
         count() AS total_voters,
         round(100 * countIf(upper(Aug_2024_Status) = 'VOTED') / count(), 0) AS turnout_pct,
         countIf(toYear(registrationdate) = 2024) AS new_regs,
-        uniqExact(legislative_district) AS active_legis,
-        (SELECT uniqExact(legislative_district) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
+        uniqExact(legislativedistrict) AS active_legis,
+        (SELECT uniqExact(legislativedistrict) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
       FROM silver_sos_2024_09_voters_llama2_3_4
       WHERE multiSearchAny(lower(llama_names), ['muslim', 'revert'])
       FORMAT JSON
