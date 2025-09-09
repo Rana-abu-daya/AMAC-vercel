@@ -442,16 +442,18 @@ if (window.map && window.map.getSource("voter-data")) {
     type: "fill",
     source: "voter-data",
     paint: {
-      "fill-color": [
-        "interpolate",
-        ["linear"],
-        ["get", "voter_count"],
-        0, "#e6efff",
-        100, "#93c5fd",
-        200, "#3b82f6",
-        500, "#1d4ed8",
-        1000, "#1e40af"
-      ],
+      'fill-color': [
+  'interpolate',
+  ['linear'],
+  ['get', 'voter_count'],
+  0, '#f1f5fb',       // very light
+  500, '#c7d2fe',     // light blue
+  2_000, '#93c5fd',   // medium
+  10_000, '#3b82f6',  // darker
+  20_000, '#1d4ed8',  // dark
+  40_000, '#1e40af'   // very dark
+],
+
       "fill-opacity": 0.7,
       "fill-outline-color": "#ffffff"
     }
