@@ -75,7 +75,7 @@ const CLICKHOUSE_USER = process.env.CLICKHOUSE_USER || "default";
 const CLICKHOUSE_PASSWORD = process.env.CLICKHOUSE_PASSWORD;
 
 const TABLE = "silver_sos_2024_09_voters_llama2_3_4";
-const COHORT = "(lower(llama_names) LIKE '%muslim%' OR lower(llama_names) LIKE '%revert%')";
+const COHORT = "(lower(llama_names) LIKE 'muslim' OR lower(llama_names) LIKE 'revert')";
 
 module.exports = async (req, res) => {
   try {
