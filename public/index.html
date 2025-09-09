@@ -427,7 +427,7 @@
     body: JSON.stringify({ election, jurisdiction })
   });
   const { data } = await res.json();
-
+   console.log(data)
   // load shapefile once
   const base = await loadBaseGeojson();
 
