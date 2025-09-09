@@ -549,52 +549,8 @@
                             <option>By Turnout %</option>
                         </select>
                     </div>
-                    <div class="space-y-4">
-                        <div>
-                            <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                <span class="font-medium mb-1 sm:mb-0">King County</span>
-                                <span class="stat-value">89,450</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-bar-fill" style="width: 100%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                <span class="font-medium mb-1 sm:mb-0">7th Congressional District</span>
-                                <span class="stat-value">45,230</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-bar-fill" style="width: 50%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                <span class="font-medium mb-1 sm:mb-0">Seattle</span>
-                                <span class="stat-value">32,180</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-bar-fill" style="width: 35%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                <span class="font-medium mb-1 sm:mb-0">Bellevue</span>
-                                <span class="stat-value">28,940</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-bar-fill" style="width: 32%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                <span class="font-medium mb-1 sm:mb-0">Tacoma</span>
-                                <span class="stat-value">25,670</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-bar-fill" style="width: 29%"></div>
-                            </div>
-                        </div>
+                    <div  id="top-jurisdictions" class="space-y-4">
+
                     </div>
                 </div>
 
@@ -1143,7 +1099,7 @@
 </script>
 
 <script>
-    async function refreshKPIs(election) {
+    async function refreshKPIs1(election) {
    const statValues = document.querySelectorAll('.stat-value');
    const totalVotersEl = statValues[0];
    const turnoutEl = statValues[1];
@@ -1177,6 +1133,80 @@
      }
    }
  }
+
+ async function refreshKPIs(election, mode = "count") {
+  // KPI Cards
+  const statValues = document.querySelectorAll('.stat-value');
+  const totalVotersEl = statValues[0];
+  const turnoutEl = statValues[1];
+  const newRegsEl = statValues[2];
+  const activeDistrictsEl = statValues[3];
+
+  // reset first
+  totalVotersEl.textContent = "0";
+  turnoutEl.textContent = "0%";
+  newRegsEl.textContent = "0";
+  activeDistrictsEl.textContent = "0";
+
+  // ✅ KPIs
+  if (election === "Nov 2024" || election === "Aug 2024") {
+    try {
+      const res = await fetch("/api/election-metrics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ election })
+      });
+      const data = await res.json();
+
+      totalVotersEl.textContent = data.row?.total_voters?.toLocaleString() || "0";
+      turnoutEl.textContent = (data.row?.turnout_pct || 0) + "%";
+      newRegsEl.textContent = data.row?.new_regs?.toLocaleString() || "0";
+      activeDistrictsEl.textContent = data.row?.active_legis || "0";
+    } catch (err) {
+      console.error("Failed to fetch election metrics:", err);
+    }
+  }
+
+  //  Top Jurisdictions
+  try {
+    const res = await fetch(`/api/top-jurisdictions?election=${encodeURIComponent(election)}&mode=${mode}`);
+    const jurisdictions = await res.json();
+
+    const container = document.querySelector("#top-jurisdictions");
+    if (container && jurisdictions) {
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row justify-between mb-2">
+          <span class="font-medium">County – ${jurisdictions.county.name}</span>
+          <span class="stat-value">${jurisdictions.county.value.toLocaleString()}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:100%"></div></div>
+
+        <div class="flex flex-col sm:flex-row justify-between mb-2">
+          <span class="font-medium">Congressional District – ${jurisdictions.congressional.name}</span>
+          <span class="stat-value">${jurisdictions.congressional.value.toLocaleString()}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:80%"></div></div>
+
+        <div class="flex flex-col sm:flex-row justify-between mb-2">
+          <span class="font-medium">Legislative District – ${jurisdictions.legislative.name}</span>
+          <span class="stat-value">${jurisdictions.legislative.value.toLocaleString()}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:60%"></div></div>
+
+        ${jurisdictions.cities.map(city => `
+          <div class="flex flex-col sm:flex-row justify-between mb-2">
+            <span class="font-medium">${city.name}</span>
+            <span class="stat-value">${city.value.toLocaleString()}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-bar-fill" style="width:50%"></div></div>
+        `).join("")}
+      `;
+    }
+  } catch (err) {
+    console.error("Failed to fetch jurisdictions:", err);
+  }
+}
+
 
 
      // ✅ Run once on load with default "Nov 2024"
