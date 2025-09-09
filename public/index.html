@@ -1262,7 +1262,7 @@
             body: JSON.stringify({ election })
           });
           const data = await res.json();
-
+          console.log(data)
           // Update with real numbers
           totalVotersEl.textContent = data.total_voters?.toLocaleString() || "0";
           turnoutEl.textContent = (data.turnout_pct || 0) + "%";
