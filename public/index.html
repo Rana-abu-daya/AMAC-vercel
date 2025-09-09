@@ -433,7 +433,6 @@
 
   // merge stats with shapefile
   const geojson = mergeDataWithGeojson(base, data, "JURISDICT_NM");
-  console.log(geojson)
 if (window.map && window.map.getSource("voter-data")) {
   window.map.getSource("voter-data").setData(geojson);
 } else if (window.map) {
@@ -448,10 +447,10 @@ if (window.map && window.map.getSource("voter-data")) {
         ["linear"],
         ["get", "voter_count"],
         0, "#e6efff",
-        20000, "#93c5fd",
-        40000, "#3b82f6",
-        60000, "#1d4ed8",
-        80000, "#1e40af"
+        100, "#93c5fd",
+        200, "#3b82f6",
+        500, "#1d4ed8",
+        1000, "#1e40af"
       ],
       "fill-opacity": 0.7,
       "fill-outline-color": "#ffffff"
