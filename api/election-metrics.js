@@ -10,22 +10,15 @@ export default async function handler(req, res) {
     const proxyUrl = process.env.FIXIE_URL;
     const agent = new HttpsProxyAgent(proxyUrl);
 
-    const TABLE = "silver_sos_2024_09_voters_llama2_3_4";
-    const COHORT = "multiSearchAny(lower(llama_names), ['muslim','revert'])";
-
-    // ✅ Single SQL query to return all KPI metrics at once
     const query = `
       SELECT
         count() AS total_voters,
-        -- turnout: Aug 2024
-        round(100 * countIf(lower(Aug_2024_Status) = 'voted') / nullIf(count(),0), 0) AS turnout_pct,
-        -- new regs in 2024
+        round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 1) AS turnout_pct,
         countIf(toYear(registrationdate) = 2024) AS new_regs,
-        -- active districts
         uniqExact(legislativedistrict) AS active_legis,
-        49 AS total_legis
-      FROM ${TABLE}
-      WHERE ${COHORT}
+        countDistinct(legislativedistrict) AS total_legis
+      FROM silver_sos_2024_09_voters_llama2_3_4
+      WHERE multiSearchAny(lower(llama_names), ['muslim','revert'])
       FORMAT JSON
     `;
 
@@ -39,24 +32,21 @@ export default async function handler(req, res) {
             Buffer.from(
               process.env.CLICKHOUSE_USER + ":" + process.env.CLICKHOUSE_PASSWORD
             ).toString("base64"),
-          "Content-Type": "text/plain", // 👈 raw SQL
+          "Content-Type": "text/plain",
         },
         body: query,
         agent,
       }
     );
 
-    if (!clickhouseRes.ok) {
-      throw new Error(
-        `ClickHouse HTTP ${clickhouseRes.status}: ${await clickhouseRes.text()}`
-      );
-    }
+    const raw = await clickhouseRes.json();
 
-    // ✅ Parse JSON response from ClickHouse
-    const data = await clickhouseRes.json();
-
-    // ClickHouse JSON has "data" array, we want the first row
-    res.status(200).json(data.data[0] || {});
+    // ✅ Normalize result for frontend
+    res.status(200).json({
+      data: raw.data || [],       // always an array
+      meta: raw.meta || [],
+      stats: raw.statistics || {}
+    });
   } catch (err) {
     console.error("ClickHouse error:", err);
     res.status(500).json({ error: err.message });
