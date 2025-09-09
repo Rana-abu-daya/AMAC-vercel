@@ -658,11 +658,6 @@
 </div>
 
 <script>
-    document.getElementById('jurisdiction-mode').addEventListener('change', (e) => {
-  const mode = e.target.value; // "count" or "turnout"
-  const election = window.currentElection || 'Nov 2024';
-  renderJurisdictions(election, mode);
-});
 
     // Wait for Chart.js to load
     window.addEventListener('DOMContentLoaded', () => {
@@ -1281,9 +1276,22 @@ async function refreshKPIs(election) {
 
 
      // ✅ Run once on load with default "Nov 2024"
-     window.addEventListener("DOMContentLoaded", () => {
-       refreshKPIs("Nov 2024");
-     });
+window.addEventListener("DOMContentLoaded", () => {
+  // Load default metrics
+  window.currentElection = "Nov 2024";
+  refreshKPIs("Nov 2024");
+
+  // Attach mode change listener once
+  const modeSelect = document.getElementById("jurisdiction-mode");
+  if (modeSelect) {
+    modeSelect.addEventListener("change", (e) => {
+      const mode = e.target.value; // "count" or "turnout"
+      const election = window.currentElection || "Nov 2024";
+      renderJurisdictions(election, mode);
+    });
+  }
+});
+
 
     function renderJurisdictions(election, mode = "count") {
     console.log(election)
