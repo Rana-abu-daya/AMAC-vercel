@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         }
         FROM ${table}
         WHERE ${cohort}
-        GROUP BY county ORDER BY value DESC LIMIT 1;
+        GROUP BY county ORDER BY value DESC LIMIT 1 FORMAT JSON;
       `,
       congressional: `
         SELECT congressionaldistrict AS name, ${
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         }
         FROM ${table}
         WHERE ${cohort}
-        GROUP BY congressionaldistrict ORDER BY value DESC LIMIT 1;
+        GROUP BY congressionaldistrict ORDER BY value DESC LIMIT 1 FORMAT JSON;
       `,
       legislative: `
         SELECT legislativedistrict AS name, ${
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
         }
         FROM ${table}
         WHERE ${cohort}
-        GROUP BY legislativedistrict ORDER BY value DESC LIMIT 1;
+        GROUP BY legislativedistrict ORDER BY value DESC LIMIT 1 FORMAT JSON;
       `,
       cities: `
         SELECT regcity AS name, ${
@@ -50,36 +50,43 @@ export default async function handler(req, res) {
         }
         FROM ${table}
         WHERE ${cohort}
-        GROUP BY city ORDER BY value DESC LIMIT 2;
+        GROUP BY city ORDER BY value DESC LIMIT 2 FORMAT JSON;
       `
     };
 
     const agent = new HttpsProxyAgent(process.env.FIXIE_URL);
-    const results = {};
+       const results = {};
 
-    for (let key of Object.keys(queries)) {
-      const resp = await fetch(process.env.CLICKHOUSE_URL, {
-        method: "POST",
-        body: queries[key],
-        headers: {
-          Authorization: "Basic " +
-            Buffer.from(`${process.env.CLICKHOUSE_USER}:${process.env.CLICKHOUSE_PASSWORD}`).toString("base64"),
-          "Content-Type": "text/plain",
-        },
-        agent,
-      });
-      const json = await resp.json();
-      const row = json.data?.[0] || {};
-      if (key === "cities") {
-        results.cities = json.data.map(r => ({ name: r.name, value: r.value }));
-      } else {
-        results[key] = { name: row.name || "", value: row.value || 0 };
-      }
-    }
+       for (let key of Object.keys(queries)) {
+         const resp = await fetch(process.env.CLICKHOUSE_URL, {
+           method: "POST",
+           body: queries[key],
+           headers: {
+             Authorization:
+               "Basic " +
+               Buffer.from(
+                 `${process.env.CLICKHOUSE_USER}:${process.env.CLICKHOUSE_PASSWORD}`
+               ).toString("base64"),
+             "Content-Type": "text/plain",
+           },
+           agent,
+         });
 
-    res.status(200).json(results);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-}
+         const json = await resp.json();
+         const row = json.data?.[0] || {};
+         if (key === "cities") {
+           results.cities = json.data.map((r) => ({
+             name: r.name,
+             value: r.value,
+           }));
+         } else {
+           results[key] = { name: row.name || "", value: row.value || 0 };
+         }
+       }
+
+       res.status(200).json(results);
+     } catch (err) {
+       console.error("ClickHouse error:", err);
+       res.status(500).json({ error: err.message });
+     }
+   }
