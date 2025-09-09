@@ -324,15 +324,7 @@
     // ✅ Now this works
     document.querySelectorAll('.stat-value')[1].textContent = this.turnoutData[election] + '%';
 
-    if (window.turnoutChart) {
-      const allElections = Object.keys(this.turnoutData);
-      const data = allElections.map(e => this.turnoutData[e]);
-      window.turnoutChart.data.datasets[0].data = data;
-      window.turnoutChart.data.datasets[0].backgroundColor = data.map((d, i) =>
-        allElections[i] === election ? '#1d4ed8' : '#2563eb'
-      );
-      window.turnoutChart.update();
-    }
+
   }
 }">
                 <button @click="open = !open" class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors">
@@ -1072,99 +1064,6 @@
     `;
     document.body.appendChild(dateRangeModal);
 
-    const turnoutCtx = document.getElementById('turnoutChart').getContext('2d');
-    const turnoutChart = new Chart(turnoutCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Aug 23', 'Nov 23','Feb 24', 'Aug 24', 'Nov 24', 'Aug 25'],
-            datasets: [{
-                data: [58, 65, 72, 68, 76, null],
-                backgroundColor: '#2563eb',
-                borderRadius: {
-                    topLeft: 4,
-                    topRight: 4
-                },
-                barThickness: 40,
-                hoverBackgroundColor: '#1d4ed8'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    top: 20,
-                    right: 20,
-                    bottom: 20,
-                    left: 20
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    grid: {
-                        color: '#f3f4f6',
-                        drawBorder: false
-                    },
-                    border: {
-                        display: false
-                    },
-                    ticks: {
-                        color: '#4b5563',
-                        font: {
-                            family: "'Inter', sans-serif",
-                            size: 12
-                        },
-                        padding: 8,
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    border: {
-                        display: false
-                    },
-                    ticks: {
-                        color: '#4b5563',
-                        font: {
-                            family: "'Inter', sans-serif",
-                            size: 12
-                        },
-                        padding: 8
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: '#1f2937',
-                    titleFont: {
-                        family: "'Inter', sans-serif",
-                        size: 14,
-                        weight: '600'
-                    },
-                    bodyFont: {
-                        family: "'Inter', sans-serif",
-                        size: 13
-                    },
-                    padding: 12,
-                    cornerRadius: 8,
-                    callbacks: {
-                        label: function(context) {
-                            return context.parsed.y + '% Turnout';
-                        }
-                    }
-                }
-            }
-        }
-    });
 
     const ethnicityCtx = document.getElementById('ethnicityChart').getContext('2d');
     new Chart(ethnicityCtx, {
