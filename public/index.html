@@ -318,8 +318,8 @@
     'Feb 2024': 58
   },
   updateElection(election) {
-    this.selectedElection = election;
-    refreshKPIs(election);
+     this.selectedElection = election;
+  refreshKPIs(election, this.mode || 'count');
 
     // ✅ Now this works
     document.querySelectorAll('.stat-value')[1].textContent = this.turnoutData[election] + '%';
@@ -1171,7 +1171,7 @@
   try {
     const res = await fetch(`/api/top-jurisdictions?election=${encodeURIComponent(election)}&mode=${mode}`);
     const jurisdictions = await res.json();
-
+    console.log(jurisdictions)
     const container = document.querySelector("#top-jurisdictions");
     if (container && jurisdictions) {
       container.innerHTML = `
