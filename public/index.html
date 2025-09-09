@@ -318,18 +318,18 @@
     'Feb 2024': 58
   },
   updateElection(election) {
-     this.selectedElection = election;
+  this.selectedElection = election;
+  window.currentElection = election;   // ✅ save globally
   refreshKPIs(election);
-
+            const modeSelect = document.getElementById('jurisdiction-mode');
+            if (modeSelect) {
+            modeSelect.value = 'count';
+            }
+            renderJurisdictions(election, 'count');
+            }
 
     // ✅ Now this works
     document.querySelectorAll('.stat-value')[1].textContent = this.turnoutData[election] + '%';
-document.getElementById('jurisdiction-mode').addEventListener('change', (e) => {
-            const mode = e.target.value; // 'count' or 'turnout'
-            const election = window.currentElection || 'Nov 2024';
-            renderJurisdictions(election, mode);
-            });
-
 
   }
 }">
@@ -658,6 +658,12 @@ document.getElementById('jurisdiction-mode').addEventListener('change', (e) => {
 </div>
 
 <script>
+    document.getElementById('jurisdiction-mode').addEventListener('change', (e) => {
+  const mode = e.target.value; // "count" or "turnout"
+  const election = window.currentElection || 'Nov 2024';
+  renderJurisdictions(election, mode);
+});
+
     // Wait for Chart.js to load
     window.addEventListener('DOMContentLoaded', () => {
         // Initialize charts first
