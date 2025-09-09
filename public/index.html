@@ -1213,7 +1213,8 @@
   });
 
   // Extract first row
-  const m = result.data?.[0] || {};
+   const result = await res.json();
+    const m = result.data?.[0] || {};
   console.log(m)
   document.getElementById('kpi-total').textContent  = Number(m.total_voters || 0).toLocaleString();
   document.getElementById('kpi-turnout').textContent= (m.turnout_pct ?? 0) + '%';
