@@ -1240,44 +1240,45 @@
 
 <script>
     async function refreshKPIs(election) {
-      // Select KPI elements
-      const statValues = document.querySelectorAll('.stat-value');
-      const totalVotersEl = statValues[0];
-      const turnoutEl = statValues[1];
-      const newRegsEl = statValues[2];
-      const activeDistrictsEl = statValues[3];
+   const statValues = document.querySelectorAll('.stat-value');
+   const totalVotersEl = statValues[0];
+   const turnoutEl = statValues[1];
+   const newRegsEl = statValues[2];
+   const activeDistrictsEl = statValues[3];
 
-      // Default reset → set everything to 0
-      totalVotersEl.textContent = "0";
-      turnoutEl.textContent = "0%";
-      newRegsEl.textContent = "0";
-      activeDistrictsEl.textContent = "0";
+   // Reset to 0 first
+   totalVotersEl.textContent = "0";
+   turnoutEl.textContent = "0%";
+   newRegsEl.textContent = "0";
+   activeDistrictsEl.textContent = "0";
 
-      // Only fetch from backend for Nov 2024 or Aug 2024
-      if (election === "Nov 2024" || election === "Aug 2024") {
-        try {
-          const res = await fetch("/api/election-metrics", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ election })
-          });
-          const data = await res.json();
-          console.log(data)
-          // Update with real numbers
-          totalVotersEl.textContent = data.total_voters?.toLocaleString() || "0";
-          turnoutEl.textContent = (data.turnout_pct || 0) + "%";
-          newRegsEl.textContent = data.new_regs?.toLocaleString() || "0";
-          activeDistrictsEl.textContent = data.active_legis || "0";
-        } catch (err) {
-          console.error("Failed to fetch election metrics:", err);
-        }
-      }
-    }
+   if (election === "Nov 2024" || election === "Aug 2024") {
+     try {
+       const res = await fetch("/api/election-metrics", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({ election })
+       });
+       const data = await res.json();
 
-    // ✅ Run once on load with default "Nov 2024"
-    window.addEventListener("DOMContentLoaded", () => {
-      refreshKPIs("Nov 2024");
-    });
+       // ✅ Use row object
+       const row = data.row || {};
+
+       totalVotersEl.textContent = row.total_voters?.toLocaleString() || "0";
+       turnoutEl.textContent = (row.turnout_pct || 0) + "%";
+       newRegsEl.textContent = row.new_regs?.toLocaleString() || "0";
+       activeDistrictsEl.textContent = row.active_legis || "0";
+     } catch (err) {
+       console.error("Failed to fetch election metrics:", err);
+     }
+   }
+ }
+
+
+     // ✅ Run once on load with default "Nov 2024"
+     window.addEventListener("DOMContentLoaded", () => {
+       refreshKPIs("Nov 2024");
+     });
 </script>
 
 </body>
