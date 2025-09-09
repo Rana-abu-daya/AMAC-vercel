@@ -1281,5 +1281,57 @@
      });
 </script>
 
+
+<script>
+    async function loadTurnoutSeries() {
+  try {
+    const res = await fetch("/api/turnout-series");
+    const { labels, data } = await res.json();
+
+    const turnoutCtx = document.getElementById("turnoutChart").getContext("2d");
+
+    window.turnoutChart = new Chart(turnoutCtx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: labels.map((l) =>
+              l === "Nov 2024" || l === "Aug 2024" ? "#1d4ed8" : "#2563eb"
+            ),
+            borderRadius: { topLeft: 4, topRight: 4 },
+            barThickness: 40,
+            hoverBackgroundColor: "#1d4ed8",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: (v) => v + "%",
+            },
+          },
+        },
+      },
+    });
+  } catch (err) {
+    console.error("Failed to load turnout series:", err);
+  }
+}
+
+// Call on load
+window.addEventListener("DOMContentLoaded", loadTurnoutSeries);
+
+
+
+
+</script>
 </body>
 </html>
