@@ -20,7 +20,7 @@ export default async function handler(req, res) {
          uniqExact(legislative_district) AS active_legis,
          (SELECT uniqExact(legislative_district) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
        FROM silver_sos_2024_09_voters_llama2_3_4
-       WHERE lower(llama_names) IN ('muslim', 'revert')
+       WHERE multiSearchAny(lower(llama_names), ['muslim', 'revert'])
        FORMAT JSON
 
       `;
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         uniqExact(legislative_district) AS active_legis,
         (SELECT uniqExact(legislative_district) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
       FROM silver_sos_2024_09_voters_llama2_3_4
-      WHERE lower(llama_names) IN ('muslim', 'revert')
+      WHERE multiSearchAny(lower(llama_names), ['muslim', 'revert'])
       FORMAT JSON
 
       `;
