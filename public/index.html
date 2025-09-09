@@ -1514,19 +1514,17 @@ async function loadBaseGeojson() {
   }
   return baseGeojson;
 }
-function mergeDataWithGeojson(baseGeojson, data, keyField = "COUNTY_NAME") {
-  // `data` comes from ClickHouse, shape: [{ name: "King County", voter_count: 89450, turnout: 76 }, ...]
-
+function mergeDataWithGeojson(baseGeojson, data, keyField = "JURISDICT_NM") {
   const lookup = {};
   data.forEach((row) => {
-    lookup[row.name.toLowerCase()] = row; // normalize for matching
+    lookup[row.name.toLowerCase()] = row;
   });
 
   return {
     type: "FeatureCollection",
     features: baseGeojson.features.map((feat) => {
-      const countyName = feat.properties[keyField]?.toLowerCase();
-      const match = lookup[countyName];
+      const rawName = (feat.properties[keyField] || "").toLowerCase();
+      const match = lookup[rawName];
 
       return {
         ...feat,
@@ -1539,7 +1537,6 @@ function mergeDataWithGeojson(baseGeojson, data, keyField = "COUNTY_NAME") {
     }),
   };
 }
-
 
 
 </script>
