@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import HttpsProxyAgent from "https-proxy-agent";
+import { HttpsProxyAgent } from "https-proxy-agent";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -7,8 +7,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Proxy agent for Fixie
-    const proxyUrl = process.env.FIXIE_URL; // comes from Fixie
+    const proxyUrl = process.env.FIXIE_URL; // Fixie env var
     const agent = new HttpsProxyAgent(proxyUrl);
 
     const clickhouseRes = await fetch(
@@ -26,7 +25,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           query: `SELECT 1 FORMAT JSON`,
         }),
-        agent, // 🔥 route through Fixie
+        agent,
       }
     );
 
