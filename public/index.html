@@ -1231,7 +1231,6 @@
   document.getElementById('kpi-new').textContent    = Number(m.new_regs || 0).toLocaleString();
   document.getElementById('kpi-active').textContent = `${m.active_legis || 0} of ${m.total_legis || 0}`;
 }
-}
 
               async function refreshTurnoutChart(election) {
         const res = await fetch('/api/turnout-series');
