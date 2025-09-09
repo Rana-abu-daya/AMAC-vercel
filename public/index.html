@@ -363,65 +363,110 @@
         <div class="flex-1 bg-white rounded-lg shadow-sm p-2">
             <h3 class="text-xs font-medium mb-1.5">Jurisdiction</h3>
             <div class="dropdown-container"
-                 x-data="{
-                        open: false,
-                        selected: 'State Level',
-                        updateView() {
-                            const data = {
-                                'State Level': { count: 247890, areas: ['Washington State'] },
-                                'Counties': { count: 89450, areas: ['King County', 'Pierce County', 'Snohomish County'] },
-                                'Legislative Districts': { count: 52340, areas: ['1st District', '2nd District', '3rd District'] },
-                                'Cities': { count: 32180, areas: ['Seattle', 'Bellevue', 'Tacoma'] }
-                            };
+                 x-data="jurisdictionDropdown()"
+                 x-init="updateView()">
 
-                            // Update voter count with selected jurisdiction's data
-                            const totalVoters = data[this.selected]?.count || 0;
-
-                            // Update the stats
-                            document.querySelectorAll('.stat-value')[0].textContent = totalVoters.toLocaleString();
-
-                            // Update the map title based on selection
-                            const mapTitle = document.querySelector('#map-title');
-                            if (mapTitle) {
-                                mapTitle.textContent = 'Voter Distribution by ' + this.selected;
-                            }
-                        }
-                    }"
-                 @change="updateView">
-                <button @click="open = !open" class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors">
-                    <span class="text-sm text-gray-900 leading-none" x-text="selected || 'Select jurisdiction'">Select jurisdiction</span>
+                <!-- Button -->
+                <button @click="open = !open"
+                        class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors">
+      <span class="text-sm text-gray-900 leading-none"
+            x-text="selected || 'Select jurisdiction'">
+        Select jurisdiction
+      </span>
                     <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 flex-shrink-0 ml-1.5"></i>
                 </button>
-                <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
+
+                <!-- Dropdown menu -->
+                <div x-show="open"
+                     @click.away="open = false"
+                     class="dropdown-menu mt-1 bg-white rounded shadow border border-gray-200 z-50">
                     <div class="py-1">
-                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="jurisdiction" class="text-primary" value="State Level" x-model="selected">
-                            <span class="text-sm text-gray-900">State Level</span>
-                        </label>
-                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="jurisdiction" class="text-primary" value="Counties" x-model="selected">
-                            <span class="text-sm text-gray-900">Counties</span>
-                        </label>
-                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="jurisdiction" class="text-primary" value="Legislative Districts" x-model="selected">
-                            <span class="text-sm text-gray-900">Legislative Districts</span>
-                        </label>
-                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="jurisdiction" class="text-primary" value="Congressional Districts" x-model="selected">
-                            <span class="text-sm text-gray-900">Congressional Districts</span>
-                        </label>
-                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="jurisdiction" class="text-primary" value="Cities" x-model="selected">
-                            <span class="text-sm text-gray-900">Cities</span>
-                        </label>
-                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="jurisdiction" class="text-primary" value="School Districts" x-model="selected">
-                            <span class="text-sm text-gray-900">School Districts</span>
-                        </label>
+                        <template x-for="opt in options" :key="opt">
+                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                                <input type="radio"
+                                       name="jurisdiction"
+                                       class="text-primary"
+                                       :value="opt"
+                                       x-model="selected"
+                                       @change="open = false; updateView()">
+                                <span class="text-sm text-gray-900" x-text="opt"></span>
+                            </label>
+                        </template>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            function jurisdictionDropdown() {
+              return {
+                open: false,
+                selected: 'State Level',
+                options: [
+                  'State Level',
+                  'Counties',
+                  'Legislative Districts',
+                  'Congressional Districts',
+                  'Cities',
+                  'School Districts'
+                ],
+                async updateView() {
+                  const election = window.currentElection || 'Nov 2024';
+                  const jurisdiction = this.selected;
+
+                  // Update title above map
+                  const mapTitle = document.getElementById('map-title');
+                  if (mapTitle) {
+                    mapTitle.textContent = `Voter Distribution by ${jurisdiction}`;
+                  }
+
+                 try {
+  const res = await fetch('/api/jurisdiction-map', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ election, jurisdiction })
+  });
+  const { data } = await res.json();
+
+  // load shapefile once
+  const base = await loadBaseGeojson();
+
+  // merge stats with shapefile
+  const geojson = mergeDataWithGeojson(base, data, "COUNTY_NAME");
+
+  if (map.getSource('voter-data')) {
+    map.getSource('voter-data').setData(geojson);
+  } else {
+    map.addSource('voter-data', { type: 'geojson', data: geojson });
+    map.addLayer({
+      id: 'voter-choropleth',
+      type: 'fill',
+      source: 'voter-data',
+      paint: {
+        'fill-color': [
+          'interpolate',
+          ['linear'],
+          ['get', 'voter_count'],
+          0, '#e6efff',
+          20000, '#93c5fd',
+          40000, '#3b82f6',
+          60000, '#1d4ed8',
+          80000, '#1e40af'
+        ],
+        'fill-opacity': 0.7,
+        'fill-outline-color': '#ffffff'
+      }
+    });
+  }
+} catch (err) {
+  console.error('Failed to update jurisdiction map:', err);
+}
+
+                }
+              }
+            }
+        </script>
+
 
         <!-- Ethnicity Filter -->
         <div class="flex-1 bg-white rounded-lg shadow-sm p-2">
@@ -1397,7 +1442,84 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 </script>
+<script>
+    async function loadJurisdictionMap(election, jurisdiction) {
+  try {
+    const res = await fetch("/api/jurisdiction-map", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ election, jurisdiction }),
+    });
 
+    const { data } = await res.json();
+
+    // Convert into GeoJSON (⚠️ You’ll eventually replace sample polygons with real shapefiles)
+    const geojson = {
+      type: "FeatureCollection",
+      features: data.map((row) => ({
+        type: "Feature",
+        properties: {
+          name: row.name,
+          voter_count: row.voter_count,
+          turnout: row.turnout,
+        },
+        geometry: {
+          type: "Polygon",
+          coordinates: [[]], // TODO: insert real geometry (GeoJSON from shapefiles or TIGER data)
+        },
+      })),
+    };
+
+    // Update map source dynamically
+    if (map.getSource("voter-data")) {
+      map.getSource("voter-data").setData(geojson);
+    }
+  } catch (err) {
+    console.error("Failed to load jurisdiction map:", err);
+  }
+}
+
+</script>
+
+<script>
+    let baseGeojson = null;
+
+async function loadBaseGeojson() {
+  if (!baseGeojson) {
+    const res = await fetch("/assets/WA_County_Boundaries.geojson");
+    baseGeojson = await res.json();
+  }
+  return baseGeojson;
+}
+function mergeDataWithGeojson(baseGeojson, data, keyField = "COUNTY_NAME") {
+  // `data` comes from ClickHouse, shape: [{ name: "King County", voter_count: 89450, turnout: 76 }, ...]
+
+  const lookup = {};
+  data.forEach((row) => {
+    lookup[row.name.toLowerCase()] = row; // normalize for matching
+  });
+
+  return {
+    type: "FeatureCollection",
+    features: baseGeojson.features.map((feat) => {
+      const countyName = feat.properties[keyField]?.toLowerCase();
+      const match = lookup[countyName];
+
+      return {
+        ...feat,
+        properties: {
+          ...feat.properties,
+          voter_count: match ? match.voter_count : 0,
+          turnout: match ? match.turnout : 0,
+        },
+      };
+    }),
+  };
+}
+
+
+
+</script>
 
 </body>
 </html>
