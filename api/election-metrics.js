@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     );
 
     const raw = await clickhouseRes.json();
-
+    console.log(raw)
     // ✅ Normalize response
     res.status(200).json({
       data: raw.data || [],
