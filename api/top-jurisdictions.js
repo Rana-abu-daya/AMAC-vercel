@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         }
         FROM ${table}
         WHERE ${cohort}
-        GROUP BY county ORDER BY value DESC LIMIT 1 FORMAT JSON;
+        GROUP BY countycode ORDER BY value DESC LIMIT 1 FORMAT JSON;
       `,
       congressional: `
         SELECT congressionaldistrict AS name, ${
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         }
         FROM ${table}
         WHERE ${cohort}
-        GROUP BY city ORDER BY value DESC LIMIT 2 FORMAT JSON;
+        GROUP BY regcity ORDER BY value DESC LIMIT 2 FORMAT JSON;
       `
     };
 
