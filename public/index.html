@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMAC Voter Analytics</title>
-    
+
     <!-- Dependencies -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
@@ -273,44 +273,44 @@
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div id="loading-overlay">
-        <div class="text-center">
-            <div class="spinner mb-4 mx-auto"></div>
-            <p class="text-sm text-text-secondary text-center">Loading dashboard data...</p>
-        </div>
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+    <div class="text-center">
+        <div class="spinner mb-4 mx-auto"></div>
+        <p class="text-sm text-text-secondary text-center">Loading dashboard data...</p>
     </div>
+</div>
 
-    <div class="min-h-screen p-3 sm:p-4 md:p-6 opacity-0 transition-opacity duration-300" id="dashboard-content">
-        <!-- Header -->
-        <header class="mb-8">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-6">
-                    <img src="../assets/amac-logo.png" alt="AMAC Logo" class="h-16 w-auto" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
-                    <div class="border-l border-gray-200 pl-6">
-                        <h1 class="text-2xl font-bold">Voter Analytics</h1>
-                        <p class="text-xs text-gray-400">Last updated: April 2024</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    <button class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        <i data-lucide="download" class="w-4 h-4"></i>
-                        Export
-                    </button>
+<div class="min-h-screen p-3 sm:p-4 md:p-6 opacity-0 transition-opacity duration-300" id="dashboard-content">
+    <!-- Header -->
+    <header class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-6">
+                <img src="../assets/amac-logo.png" alt="AMAC Logo" class="h-16 w-auto" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
+                <div class="border-l border-gray-200 pl-6">
+                    <h1 class="text-2xl font-bold">Voter Analytics</h1>
+                    <p class="text-xs text-gray-400">Last updated: April 2024</p>
                 </div>
             </div>
-        </header>
 
-        <!-- Filter Bar -->
-        <div class="flex flex-col md:flex-row gap-3 mb-4">
-            <!-- Election Period -->
-            <!-- Election Period -->
-            <div class="w-full md:flex-1 bg-white rounded-lg shadow-sm p-2">
-                <h3 class="text-xs font-medium mb-1.5">Election Periodssss</h3>
-                <div
-                        class="dropdown-container"
-                        x-data="{
+            <div class="flex items-center gap-4">
+                <button class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Filter Bar -->
+    <div class="flex flex-col md:flex-row gap-3 mb-4">
+        <!-- Election Period -->
+        <!-- Election Period -->
+        <div class="w-full md:flex-1 bg-white rounded-lg shadow-sm p-2">
+            <h3 class="text-xs font-medium mb-1.5">Election Periodssss</h3>
+            <div
+                    class="dropdown-container"
+                    x-data="{
       open: false,
       selectedElection: 'Nov 2024',
       elections: [],
@@ -326,41 +326,41 @@
         await refreshTurnoutChart(election);
       }
     }"
+            >
+                <button
+                        @click="open = !open"
+                        class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors"
                 >
-                    <button
-                            @click="open = !open"
-                            class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors"
-                    >
-                        <div class="flex items-center gap-1.5">
-                            <i data-lucide="calendar" class="w-4 h-4 text-gray-500"></i>
-                            <span class="text-sm text-gray-900 leading-none" x-text="selectedElection"></span>
-                        </div>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 flex-shrink-0"></i>
-                    </button>
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-4 h-4 text-gray-500"></i>
+                        <span class="text-sm text-gray-900 leading-none" x-text="selectedElection"></span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 flex-shrink-0"></i>
+                </button>
 
-                    <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
-                        <div class="py-1">
-                            <template x-for="election in elections" :key="election">
-                                <button
-                                        type="button"
-                                        @click="updateElection(election); open = false"
-                                        class="w-full text-left px-3 py-1.5 hover:bg-gray-50 text-sm"
-                                        :class="{'text-primary font-medium': selectedElection === election}"
-                                        x-text="election">
-                                </button>
+                <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
+                    <div class="py-1">
+                        <template x-for="election in elections" :key="election">
+                            <button
+                                    type="button"
+                                    @click="updateElection(election); open = false"
+                                    class="w-full text-left px-3 py-1.5 hover:bg-gray-50 text-sm"
+                                    :class="{'text-primary font-medium': selectedElection === election}"
+                                    x-text="election">
+                            </button>
 
-                            </template>
-                        </div>
+                        </template>
                     </div>
                 </div>
             </div>
+        </div>
 
 
-            <!-- Jurisdiction Type -->
-            <div class="flex-1 bg-white rounded-lg shadow-sm p-2">
-                <h3 class="text-xs font-medium mb-1.5">Jurisdiction</h3>
-                <div class="dropdown-container" 
-                    x-data="{ 
+        <!-- Jurisdiction Type -->
+        <div class="flex-1 bg-white rounded-lg shadow-sm p-2">
+            <h3 class="text-xs font-medium mb-1.5">Jurisdiction</h3>
+            <div class="dropdown-container"
+                 x-data="{
                         open: false, 
                         selected: 'State Level',
                         updateView() {
@@ -384,47 +384,47 @@
                             }
                         }
                     }"
-                    @change="updateView">
-                    <button @click="open = !open" class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors">
-                        <span class="text-sm text-gray-900 leading-none" x-text="selected || 'Select jurisdiction'">Select jurisdiction</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 flex-shrink-0 ml-1.5"></i>
-                    </button>
-                    <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
-                        <div class="py-1">
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="radio" name="jurisdiction" class="text-primary" value="State Level" x-model="selected">
-                                <span class="text-sm text-gray-900">State Level</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="radio" name="jurisdiction" class="text-primary" value="Counties" x-model="selected">
-                                <span class="text-sm text-gray-900">Counties</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="radio" name="jurisdiction" class="text-primary" value="Legislative Districts" x-model="selected">
-                                <span class="text-sm text-gray-900">Legislative Districts</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="radio" name="jurisdiction" class="text-primary" value="Congressional Districts" x-model="selected">
-                                <span class="text-sm text-gray-900">Congressional Districts</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="radio" name="jurisdiction" class="text-primary" value="Cities" x-model="selected">
-                                <span class="text-sm text-gray-900">Cities</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="radio" name="jurisdiction" class="text-primary" value="School Districts" x-model="selected">
-                                <span class="text-sm text-gray-900">School Districts</span>
-                            </label>
-                        </div>
+                 @change="updateView">
+                <button @click="open = !open" class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors">
+                    <span class="text-sm text-gray-900 leading-none" x-text="selected || 'Select jurisdiction'">Select jurisdiction</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 flex-shrink-0 ml-1.5"></i>
+                </button>
+                <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
+                    <div class="py-1">
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="jurisdiction" class="text-primary" value="State Level" x-model="selected">
+                            <span class="text-sm text-gray-900">State Level</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="jurisdiction" class="text-primary" value="Counties" x-model="selected">
+                            <span class="text-sm text-gray-900">Counties</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="jurisdiction" class="text-primary" value="Legislative Districts" x-model="selected">
+                            <span class="text-sm text-gray-900">Legislative Districts</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="jurisdiction" class="text-primary" value="Congressional Districts" x-model="selected">
+                            <span class="text-sm text-gray-900">Congressional Districts</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="jurisdiction" class="text-primary" value="Cities" x-model="selected">
+                            <span class="text-sm text-gray-900">Cities</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="jurisdiction" class="text-primary" value="School Districts" x-model="selected">
+                            <span class="text-sm text-gray-900">School Districts</span>
+                        </label>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Ethnicity Filter -->
-            <div class="flex-1 bg-white rounded-lg shadow-sm p-2">
-                <h3 class="text-xs font-medium mb-1.5">Ethnicity</h3>
-                <div class="dropdown-container" 
-                    x-data="{ 
+        <!-- Ethnicity Filter -->
+        <div class="flex-1 bg-white rounded-lg shadow-sm p-2">
+            <h3 class="text-xs font-medium mb-1.5">Ethnicity</h3>
+            <div class="dropdown-container"
+                 x-data="{
                         open: false, 
                         selected: ['South Asian', 'Middle Eastern'],
                         updateView() {
@@ -460,161 +460,161 @@
                             }
                         }
                     }"
-                    @change="updateView">
-                    <button @click="open = !open" class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors">
-                        <span class="text-sm text-gray-900 leading-none" x-text="selected.length ? selected.join(', ') : 'Select ethnicities'">Select ethnicities</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 flex-shrink-0 ml-1.5"></i>
-                    </button>
-                    <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
-                        <div class="py-1">
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="checkbox" class="text-primary rounded" value="South Asian" x-model="selected">
-                                <span class="text-sm text-gray-900">South Asian</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="checkbox" class="text-primary rounded" value="Middle Eastern" x-model="selected">
-                                <span class="text-sm text-gray-900">Middle Eastern</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="checkbox" class="text-primary rounded" value="African" x-model="selected">
-                                <span class="text-sm text-gray-900">African</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <input type="checkbox" class="text-primary rounded" value="Southeast Asian" x-model="selected">
-                                <span class="text-sm text-gray-900">Southeast Asian</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Grid -->
-        <div class="grid grid-cols-1 gap-6">
-            <!-- Main Content -->
-            <div class="space-y-6">
-                <!-- Key Metrics -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    <div class="card card-hover p-4">
-                        <p class="text-text-secondary text-sm mb-1">Total Registered Voters</p>
-                        <h3 id="kpi-total" class="text-2xl font-bold stat-value">—</h3>
-                        <div class="flex items-center gap-1 mt-2 text-success text-sm">
-                            <i data-lucide="trending-up" class="w-4 h-4"></i>
-                            <span>12.4%</span>
-                        </div>
-                    </div>
-                    <div class="card card-hover p-4">
-                        <p class="text-text-secondary text-sm mb-1">Current Turnout</p>
-                        <h3 id="kpi-turnout" class="text-2xl font-bold stat-value">—</h3>
-                        <div class="flex items-center gap-1 mt-2 text-success text-sm">
-                            <i data-lucide="trending-up" class="w-4 h-4"></i>
-                            <span>4.2%</span>
-                        </div>
-                    </div>
-                    <div class="card card-hover p-4">
-                        <p class="text-text-secondary text-sm mb-1">New Registrations</p>
-                        <h3 id="kpi-new" class="text-2xl font-bold stat-value">—</h3>
-                        <div class="flex items-center gap-1 mt-2 text-warning text-sm">
-                            <i data-lucide="trending-down" class="w-4 h-4"></i>
-                            <span>2.1%</span>
-                        </div>
-                    </div>
-                    <div class="card card-hover p-4">
-                        <p class="text-text-secondary text-sm mb-1">Active Districts</p>
-                        <h3 id="kpi-active" class="text-2xl font-bold stat-value">—</h3>
-                        <div class="mt-2 text-text-secondary text-sm">
-                            <span>of 49 total</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Map & Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <!-- Top Row: Map and Turnout -->
-                    <div class="lg:col-span-8 card" style="height: 400px">
-                        <h3 id="map-title" class="absolute top-4 left-4 z-10 font-medium text-gray-900">Voter Distribution by State Level</h3>
-                        <div id="map" class="w-full h-full rounded-lg"></div>
-                    </div>
-
-                    <div class="lg:col-span-4 card p-4">
-                        <h3 class="font-medium mb-4">Turnout by Election</h3>
-                        <div style="height: 300px; position: relative;">
-                            <canvas id="turnoutChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Bottom Row: Jurisdiction and Ethnicity -->
-                    <div class="lg:col-span-8 card p-4" style="min-height: 300px; max-height: 400px; overflow-y: auto;">
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sticky top-0 bg-surface-1 py-2">
-                            <h3 class="font-medium mb-2 sm:mb-0">Top Jurisdictions</h3>
-                            <select class="w-full sm:w-auto bg-surface-2 rounded px-2 py-1 text-sm">
-                                <option>By Voter Count</option>
-                                <option>By Turnout %</option>
-                            </select>
-                        </div>
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                    <span class="font-medium mb-1 sm:mb-0">King County</span>
-                                    <span class="stat-value">89,450</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-bar-fill" style="width: 100%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                    <span class="font-medium mb-1 sm:mb-0">7th Congressional District</span>
-                                    <span class="stat-value">45,230</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-bar-fill" style="width: 50%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                    <span class="font-medium mb-1 sm:mb-0">Seattle</span>
-                                    <span class="stat-value">32,180</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-bar-fill" style="width: 35%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                    <span class="font-medium mb-1 sm:mb-0">Bellevue</span>
-                                    <span class="stat-value">28,940</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-bar-fill" style="width: 32%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex flex-col sm:flex-row justify-between mb-2">
-                                    <span class="font-medium mb-1 sm:mb-0">Tacoma</span>
-                                    <span class="stat-value">25,670</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-bar-fill" style="width: 29%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-4 card p-4">
-                        <h3 class="font-medium mb-4">Ethnicity Distribution</h3>
-                        <div style="height: 300px; position: relative;">
-                            <canvas id="ethnicityChart"></canvas>
-                        </div>
+                 @change="updateView">
+                <button @click="open = !open" class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors">
+                    <span class="text-sm text-gray-900 leading-none" x-text="selected.length ? selected.join(', ') : 'Select ethnicities'">Select ethnicities</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 flex-shrink-0 ml-1.5"></i>
+                </button>
+                <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
+                    <div class="py-1">
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="text-primary rounded" value="South Asian" x-model="selected">
+                            <span class="text-sm text-gray-900">South Asian</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="text-primary rounded" value="Middle Eastern" x-model="selected">
+                            <span class="text-sm text-gray-900">Middle Eastern</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="text-primary rounded" value="African" x-model="selected">
+                            <span class="text-sm text-gray-900">African</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="text-primary rounded" value="Southeast Asian" x-model="selected">
+                            <span class="text-sm text-gray-900">Southeast Asian</span>
+                        </label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Chat Interface -->
-    <div class="chat-container" 
-         x-data="{ 
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 gap-6">
+        <!-- Main Content -->
+        <div class="space-y-6">
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <div class="card card-hover p-4">
+                    <p class="text-text-secondary text-sm mb-1">Total Registered Voters</p>
+                    <h3 id="kpi-total" class="text-2xl font-bold stat-value">—</h3>
+                    <div class="flex items-center gap-1 mt-2 text-success text-sm">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>12.4%</span>
+                    </div>
+                </div>
+                <div class="card card-hover p-4">
+                    <p class="text-text-secondary text-sm mb-1">Current Turnout</p>
+                    <h3 id="kpi-turnout" class="text-2xl font-bold stat-value">—</h3>
+                    <div class="flex items-center gap-1 mt-2 text-success text-sm">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>4.2%</span>
+                    </div>
+                </div>
+                <div class="card card-hover p-4">
+                    <p class="text-text-secondary text-sm mb-1">New Registrations</p>
+                    <h3 id="kpi-new" class="text-2xl font-bold stat-value">—</h3>
+                    <div class="flex items-center gap-1 mt-2 text-warning text-sm">
+                        <i data-lucide="trending-down" class="w-4 h-4"></i>
+                        <span>2.1%</span>
+                    </div>
+                </div>
+                <div class="card card-hover p-4">
+                    <p class="text-text-secondary text-sm mb-1">Active Districts</p>
+                    <h3 id="kpi-active" class="text-2xl font-bold stat-value">—</h3>
+                    <div class="mt-2 text-text-secondary text-sm">
+                        <span>of 49 total</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map & Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Top Row: Map and Turnout -->
+                <div class="lg:col-span-8 card" style="height: 400px">
+                    <h3 id="map-title" class="absolute top-4 left-4 z-10 font-medium text-gray-900">Voter Distribution by State Level</h3>
+                    <div id="map" class="w-full h-full rounded-lg"></div>
+                </div>
+
+                <div class="lg:col-span-4 card p-4">
+                    <h3 class="font-medium mb-4">Turnout by Election</h3>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="turnoutChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Jurisdiction and Ethnicity -->
+                <div class="lg:col-span-8 card p-4" style="min-height: 300px; max-height: 400px; overflow-y: auto;">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sticky top-0 bg-surface-1 py-2">
+                        <h3 class="font-medium mb-2 sm:mb-0">Top Jurisdictions</h3>
+                        <select class="w-full sm:w-auto bg-surface-2 rounded px-2 py-1 text-sm">
+                            <option>By Voter Count</option>
+                            <option>By Turnout %</option>
+                        </select>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex flex-col sm:flex-row justify-between mb-2">
+                                <span class="font-medium mb-1 sm:mb-0">King County</span>
+                                <span class="stat-value">89,450</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex flex-col sm:flex-row justify-between mb-2">
+                                <span class="font-medium mb-1 sm:mb-0">7th Congressional District</span>
+                                <span class="stat-value">45,230</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 50%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex flex-col sm:flex-row justify-between mb-2">
+                                <span class="font-medium mb-1 sm:mb-0">Seattle</span>
+                                <span class="stat-value">32,180</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 35%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex flex-col sm:flex-row justify-between mb-2">
+                                <span class="font-medium mb-1 sm:mb-0">Bellevue</span>
+                                <span class="stat-value">28,940</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 32%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex flex-col sm:flex-row justify-between mb-2">
+                                <span class="font-medium mb-1 sm:mb-0">Tacoma</span>
+                                <span class="stat-value">25,670</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: 29%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 card p-4">
+                    <h3 class="font-medium mb-4">Ethnicity Distribution</h3>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="ethnicityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Interface -->
+<div class="chat-container"
+     x-data="{
             expanded: false, 
             messages: [],
             sendMessage(text) {
@@ -644,608 +644,608 @@
                 return 'I can help you analyze specific trends in voter turnout, district comparisons, or election period data.';
             }
          }"
-         :class="expanded ? 'expanded' : 'collapsed'">
-        
-        <div class="chat-header" @click="expanded = !expanded">
-            <div class="flex items-center gap-2">
-                <i data-lucide="message-circle" class="w-5 h-5"></i>
-                <span class="font-medium">Ask about the data</span>
-            </div>
-            <i data-lucide="chevron-up" class="w-5 h-5" x-show="expanded"></i>
-            <i data-lucide="chevron-down" class="w-5 h-5" x-show="!expanded"></i>
-        </div>
-        
-        <div x-show="expanded" 
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 transform translate-y-4"
-             x-transition:enter-end="opacity-100 transform translate-y-0"
-             class="chat-messages" 
-             id="chat-messages">
-            
-            <div class="chat-message">
-                <div class="message-ai">
-                    Hi! I can help you analyze the voter data. Try asking questions like:
-                    <ul class="mt-2 ml-4 list-disc text-sm">
-                        <li>What's the voter turnout trend?</li>
-                        <li>Which district has the highest turnout?</li>
-                        <li>Compare turnout between elections</li>
-                    </ul>
-                </div>
-            </div>
+     :class="expanded ? 'expanded' : 'collapsed'">
 
-            <template x-for="message in messages">
-                <div class="chat-message">
-                    <div :class="message.type === 'user' ? 'message-user' : 'message-ai'"
-                         x-text="message.text">
-                    </div>
-                </div>
-            </template>
+    <div class="chat-header" @click="expanded = !expanded">
+        <div class="flex items-center gap-2">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            <span class="font-medium">Ask about the data</span>
         </div>
-
-        <div x-show="expanded" 
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 transform translate-y-4"
-             x-transition:enter-end="opacity-100 transform translate-y-0"
-             class="chat-input">
-            <input type="text" 
-                   placeholder="Ask a question about the data..."
-                   @keyup.enter="sendMessage($event.target.value); $event.target.value = ''">
-            <button class="p-2 hover:bg-surface-2 rounded-lg" 
-                    @click="const input = $el.previousElementSibling; sendMessage(input.value); input.value = ''"
-                    title="Send message">
-                <i data-lucide="send" class="w-5 h-5"></i>
-            </button>
-        </div>
+        <i data-lucide="chevron-up" class="w-5 h-5" x-show="expanded"></i>
+        <i data-lucide="chevron-down" class="w-5 h-5" x-show="!expanded"></i>
     </div>
 
-    <script>
-        // Wait for Chart.js to load
-        window.addEventListener('DOMContentLoaded', () => {
-            // Initialize charts first
-            initializeCharts();
-        });
+    <div x-show="expanded"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-4"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         class="chat-messages"
+         id="chat-messages">
 
-       function initializeCharts() {
-  const turnoutCtx = document.getElementById('turnoutChart');
-  if (turnoutCtx) {
-    window.turnoutChart = new Chart(turnoutCtx, {
-      type: 'bar',
-      data: {
-        labels: [], // start empty, fill later
-        datasets: [{
-          label: "Turnout %",
-          data: [],
-          backgroundColor: '#2563eb',
-          borderRadius: { topLeft: 4, topRight: 4 },
-          barThickness: 30,
-          hoverBackgroundColor: '#1d4ed8'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { beginAtZero: true, max: 100 }
-        },
-        plugins: { legend: { display: false } }
-      }
+        <div class="chat-message">
+            <div class="message-ai">
+                Hi! I can help you analyze the voter data. Try asking questions like:
+                <ul class="mt-2 ml-4 list-disc text-sm">
+                    <li>What's the voter turnout trend?</li>
+                    <li>Which district has the highest turnout?</li>
+                    <li>Compare turnout between elections</li>
+                </ul>
+            </div>
+        </div>
+
+        <template x-for="message in messages">
+            <div class="chat-message">
+                <div :class="message.type === 'user' ? 'message-user' : 'message-ai'"
+                     x-text="message.text">
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <div x-show="expanded"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-4"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         class="chat-input">
+        <input type="text"
+               placeholder="Ask a question about the data..."
+               @keyup.enter="sendMessage($event.target.value); $event.target.value = ''">
+        <button class="p-2 hover:bg-surface-2 rounded-lg"
+                @click="const input = $el.previousElementSibling; sendMessage(input.value); input.value = ''"
+                title="Send message">
+            <i data-lucide="send" class="w-5 h-5"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    // Wait for Chart.js to load
+    window.addEventListener('DOMContentLoaded', () => {
+        // Initialize charts first
+        initializeCharts();
     });
+
+   function initializeCharts() {
+const turnoutCtx = document.getElementById('turnoutChart');
+if (turnoutCtx) {
+window.turnoutChart = new Chart(turnoutCtx, {
+  type: 'bar',
+  data: {
+    labels: [], // start empty, fill later
+    datasets: [{
+      label: "Turnout %",
+      data: [],
+      backgroundColor: '#2563eb',
+      borderRadius: { topLeft: 4, topRight: 4 },
+      barThickness: 30,
+      hoverBackgroundColor: '#1d4ed8'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: { beginAtZero: true, max: 100 }
+    },
+    plugins: { legend: { display: false } }
   }
+});
+}
 }
 
 
-        // Simulate loading state
-        window.addEventListener('load', () => {
+    // Simulate loading state
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.getElementById('loading-overlay').style.opacity = '0';
+            document.getElementById('dashboard-content').style.opacity = '1';
             setTimeout(() => {
-                document.getElementById('loading-overlay').style.opacity = '0';
-                document.getElementById('dashboard-content').style.opacity = '1';
-                setTimeout(() => {
-                    document.getElementById('loading-overlay').style.display = 'none';
-                }, 300);
-            }, 1000);
+                document.getElementById('loading-overlay').style.display = 'none';
+            }, 300);
+        }, 1000);
+    });
+
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Initialize Mapbox
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2FqYS1yIiwiYSI6ImNtZXRjaHhiajAwcjgya3B5cjJqaDljZGwifQ.o1uEOA7pV2RB_0A8jicwqg';
+
+    try {
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v11',
+            center: [-120.740135, 47.751076],
+            zoom: 6,
+            pitch: 45,
+            bearing: -17.6,
+            antialias: true
         });
 
-        // Initialize Lucide icons
-        lucide.createIcons();
-
-        // Initialize Mapbox
-        mapboxgl.accessToken = 'pk.eyJ1Ijoic2FqYS1yIiwiYSI6ImNtZXRjaHhiajAwcjgya3B5cjJqaDljZGwifQ.o1uEOA7pV2RB_0A8jicwqg';
-
-        try {
-            const map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/light-v11',
-                center: [-120.740135, 47.751076],
-                zoom: 6,
-                pitch: 45,
-                bearing: -17.6,
-                antialias: true
-            });
-
-            // Sample GeoJSON data for Washington counties
-            const sampleData = {
-                'type': 'FeatureCollection',
-                'features': [
-                    {
-                        'type': 'Feature',
-                        'properties': {
-                            'name': 'King County',
-                            'voter_count': 89450,
-                            'turnout': 76
-                        },
-                        'geometry': {
-                            'type': 'Polygon',
-                            'coordinates': [[[-122.5, 47.4], [-122.5, 47.8], [-121.8, 47.8], [-121.8, 47.4], [-122.5, 47.4]]]
-                        }
+        // Sample GeoJSON data for Washington counties
+        const sampleData = {
+            'type': 'FeatureCollection',
+            'features': [
+                {
+                    'type': 'Feature',
+                    'properties': {
+                        'name': 'King County',
+                        'voter_count': 89450,
+                        'turnout': 76
                     },
-                    {
-                        'type': 'Feature',
-                        'properties': {
-                            'name': 'Pierce County',
-                            'voter_count': 45230,
-                            'turnout': 72
-                        },
-                        'geometry': {
-                            'type': 'Polygon',
-                            'coordinates': [[[-122.8, 47.0], [-122.8, 47.4], [-122.1, 47.4], [-122.1, 47.0], [-122.8, 47.0]]]
-                        }
+                    'geometry': {
+                        'type': 'Polygon',
+                        'coordinates': [[[-122.5, 47.4], [-122.5, 47.8], [-121.8, 47.8], [-121.8, 47.4], [-122.5, 47.4]]]
                     }
-                ]
-            };
-
-            map.on('load', () => {
-                // Add the data source
-                map.addSource('voter-data', {
-                    'type': 'geojson',
-                    'data': sampleData
-                });
-
-                // Add choropleth layer
-                map.addLayer({
-                    'id': 'voter-choropleth',
-                    'type': 'fill',
-                    'source': 'voter-data',
-                    'paint': {
-                        'fill-color': [
-                            'interpolate',
-                            ['linear'],
-                            ['get', 'voter_count'],
-                            0, '#e6efff',
-                            20000, '#93c5fd',
-                            40000, '#3b82f6',
-                            60000, '#1d4ed8',
-                            80000, '#1e40af'
-                        ],
-                        'fill-opacity': 0.7,
-                        'fill-outline-color': '#ffffff'
-                    }
-                });
-
-                // Add hover effect
-                map.addLayer({
-                    'id': 'voter-choropleth-hover',
-                    'type': 'line',
-                    'source': 'voter-data',
-                    'paint': {
-                        'line-color': '#ffffff',
-                        'line-width': 2
+                },
+                {
+                    'type': 'Feature',
+                    'properties': {
+                        'name': 'Pierce County',
+                        'voter_count': 45230,
+                        'turnout': 72
                     },
-                    'filter': ['==', ['get', 'name'], '']
-                });
-
-                // Add popup on hover
-                const popup = new mapboxgl.Popup({
-                    closeButton: false,
-                    closeOnClick: false
-                });
-
-                map.on('mousemove', 'voter-choropleth', (e) => {
-                    if (e.features.length > 0) {
-                        const feature = e.features[0];
-
-                        // Update hover effect
-                        map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], feature.properties.name]);
-
-                        // Show popup
-                        popup.setLngLat(e.lngLat)
-                            .setHTML(`
-                                <div class="p-2">
-                                    <h4 class="font-medium">${feature.properties.name}</h4>
-                                    <p class="text-sm">Registered Voters: ${feature.properties.voter_count.toLocaleString()}</p>
-                                    <p class="text-sm">Turnout: ${feature.properties.turnout}%</p>
-                                </div>
-                            `)
-                            .addTo(map);
+                    'geometry': {
+                        'type': 'Polygon',
+                        'coordinates': [[[-122.8, 47.0], [-122.8, 47.4], [-122.1, 47.4], [-122.1, 47.0], [-122.8, 47.0]]]
                     }
-                });
+                }
+            ]
+        };
 
-                map.on('mouseleave', 'voter-choropleth', () => {
-                    map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], '']);
-                    popup.remove();
-                });
-
-                // Add 3D building layer for better visualization
-                map.addLayer({
-                    'id': '3d-buildings',
-                    'source': 'composite',
-                    'source-layer': 'building',
-                    'filter': ['==', 'extrude', 'true'],
-                    'type': 'fill-extrusion',
-                    'minzoom': 12,
-                    'paint': {
-                        'fill-extrusion-color': '#aaa',
-                        'fill-extrusion-height': ['get', 'height'],
-                        'fill-extrusion-base': ['get', 'min_height'],
-                        'fill-extrusion-opacity': 0.6
-                    }
-                });
+        map.on('load', () => {
+            // Add the data source
+            map.addSource('voter-data', {
+                'type': 'geojson',
+                'data': sampleData
             });
 
-            map.on('error', (e) => {
-                console.error('Map error:', e);
-                document.getElementById('map').innerHTML = `
-                    <div class="flex items-center justify-center h-full bg-surface-2 rounded-lg">
-                        <div class="text-center p-4">
-                            <i data-lucide="map-off" class="w-8 h-8 mx-auto mb-2 text-text-secondary"></i>
-                            <p class="text-text-secondary">Map loading error. Please check your connection.</p>
-                        </div>
-                    </div>
-                `;
+            // Add choropleth layer
+            map.addLayer({
+                'id': 'voter-choropleth',
+                'type': 'fill',
+                'source': 'voter-data',
+                'paint': {
+                    'fill-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'voter_count'],
+                        0, '#e6efff',
+                        20000, '#93c5fd',
+                        40000, '#3b82f6',
+                        60000, '#1d4ed8',
+                        80000, '#1e40af'
+                    ],
+                    'fill-opacity': 0.7,
+                    'fill-outline-color': '#ffffff'
+                }
             });
-        } catch (error) {
-            console.error('Map initialization error:', error);
+
+            // Add hover effect
+            map.addLayer({
+                'id': 'voter-choropleth-hover',
+                'type': 'line',
+                'source': 'voter-data',
+                'paint': {
+                    'line-color': '#ffffff',
+                    'line-width': 2
+                },
+                'filter': ['==', ['get', 'name'], '']
+            });
+
+            // Add popup on hover
+            const popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+
+            map.on('mousemove', 'voter-choropleth', (e) => {
+                if (e.features.length > 0) {
+                    const feature = e.features[0];
+
+                    // Update hover effect
+                    map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], feature.properties.name]);
+
+                    // Show popup
+                    popup.setLngLat(e.lngLat)
+                        .setHTML(`
+                            <div class="p-2">
+                                <h4 class="font-medium">${feature.properties.name}</h4>
+                                <p class="text-sm">Registered Voters: ${feature.properties.voter_count.toLocaleString()}</p>
+                                <p class="text-sm">Turnout: ${feature.properties.turnout}%</p>
+                            </div>
+                        `)
+                        .addTo(map);
+                }
+            });
+
+            map.on('mouseleave', 'voter-choropleth', () => {
+                map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], '']);
+                popup.remove();
+            });
+
+            // Add 3D building layer for better visualization
+            map.addLayer({
+                'id': '3d-buildings',
+                'source': 'composite',
+                'source-layer': 'building',
+                'filter': ['==', 'extrude', 'true'],
+                'type': 'fill-extrusion',
+                'minzoom': 12,
+                'paint': {
+                    'fill-extrusion-color': '#aaa',
+                    'fill-extrusion-height': ['get', 'height'],
+                    'fill-extrusion-base': ['get', 'min_height'],
+                    'fill-extrusion-opacity': 0.6
+                }
+            });
+        });
+
+        map.on('error', (e) => {
+            console.error('Map error:', e);
             document.getElementById('map').innerHTML = `
                 <div class="flex items-center justify-center h-full bg-surface-2 rounded-lg">
                     <div class="text-center p-4">
                         <i data-lucide="map-off" class="w-8 h-8 mx-auto mb-2 text-text-secondary"></i>
-                        <p class="text-text-secondary">Unable to load map. Please check your API key.</p>
+                        <p class="text-text-secondary">Map loading error. Please check your connection.</p>
                     </div>
                 </div>
             `;
-        }
+        });
+    } catch (error) {
+        console.error('Map initialization error:', error);
+        document.getElementById('map').innerHTML = `
+            <div class="flex items-center justify-center h-full bg-surface-2 rounded-lg">
+                <div class="text-center p-4">
+                    <i data-lucide="map-off" class="w-8 h-8 mx-auto mb-2 text-text-secondary"></i>
+                    <p class="text-text-secondary">Unable to load map. Please check your API key.</p>
+                </div>
+            </div>
+        `;
+    }
 
-        // Add navigation controls
-   map.on("load", () => {
-  map.addControl(new mapboxgl.NavigationControl());
+    // Add navigation controls
+map.on("load", () => {
+map.addControl(new mapboxgl.NavigationControl());
 });
 
 
 
-        // Initialize Charts
-        // Date range picker modal
-        const dateRangeModal = document.createElement('div');
-        dateRangeModal.innerHTML = `
-            <div id="dateRangePicker" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div class="bg-white rounded-lg p-6 w-96">
-                    <h3 class="text-lg font-semibold mb-4">Select Date Range</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Start Date</label>
-                            <input type="date" id="startDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">End Date</label>
-                            <input type="date" id="endDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        </div>
-                        <div class="flex justify-end gap-3">
-                            <button onclick="closeDateRangePicker()" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">Cancel</button>
-                            <button onclick="applyDateRange()" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-md">Apply</button>
-                        </div>
+    // Initialize Charts
+    // Date range picker modal
+    const dateRangeModal = document.createElement('div');
+    dateRangeModal.innerHTML = `
+        <div id="dateRangePicker" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 w-96">
+                <h3 class="text-lg font-semibold mb-4">Select Date Range</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" id="startDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" id="endDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeDateRangePicker()" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">Cancel</button>
+                        <button onclick="applyDateRange()" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-md">Apply</button>
                     </div>
                 </div>
             </div>
-        `;
-        document.body.appendChild(dateRangeModal);
+        </div>
+    `;
+    document.body.appendChild(dateRangeModal);
 
-        const turnoutCtx = document.getElementById('turnoutChart').getContext('2d');
-        const turnoutChart = new Chart(turnoutCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Aug 23', 'Nov 23','Feb 24', 'Aug 24', 'Nov 24', 'Aug 25'],
-                datasets: [{
-                    data: [58, 65, 72, 68, 76, null],
-                    backgroundColor: '#2563eb',
-                    borderRadius: {
-                        topLeft: 4,
-                        topRight: 4
-                    },
-                    barThickness: 40,
-                    hoverBackgroundColor: '#1d4ed8'
-                }]
+    const turnoutCtx = document.getElementById('turnoutChart').getContext('2d');
+    const turnoutChart = new Chart(turnoutCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Aug 23', 'Nov 23','Feb 24', 'Aug 24', 'Nov 24', 'Aug 25'],
+            datasets: [{
+                data: [58, 65, 72, 68, 76, null],
+                backgroundColor: '#2563eb',
+                borderRadius: {
+                    topLeft: 4,
+                    topRight: 4
+                },
+                barThickness: 40,
+                hoverBackgroundColor: '#1d4ed8'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 20,
+                    right: 20,
+                    bottom: 20,
+                    left: 20
+                }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        top: 20,
-                        right: 20,
-                        bottom: 20,
-                        left: 20
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            color: '#f3f4f6',
-                            drawBorder: false
-                        },
-                        border: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#4b5563',
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 12
-                            },
-                            padding: 8,
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: '#f3f4f6',
+                        drawBorder: false
                     },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        border: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#4b5563',
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 12
-                            },
-                            padding: 8
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
+                    border: {
                         display: false
                     },
-                    tooltip: {
-                        backgroundColor: '#1f2937',
-                        titleFont: {
+                    ticks: {
+                        color: '#4b5563',
+                        font: {
                             family: "'Inter', sans-serif",
-                            size: 14,
-                            weight: '600'
+                            size: 12
                         },
-                        bodyFont: {
-                            family: "'Inter', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.y + '% Turnout';
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        const ethnicityCtx = document.getElementById('ethnicityChart').getContext('2d');
-        new Chart(ethnicityCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['South Asian', 'Middle Eastern', 'African', 'Southeast Asian'],
-                datasets: [{
-                    data: [45, 30, 15, 10],
-                    backgroundColor: [
-                        '#2563eb',  // Primary blue
-                        '#7c3aed',  // Purple
-                        '#9333ea',  // Violet
-                        '#c084fc'   // Light purple
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        align: 'center',
-                        labels: {
-                            color: '#4b5563',
-                            padding: 20,
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 12
-                            },
-                            boxWidth: 8
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: '#1f2937',
-                        titleFont: {
-                            family: "'Inter', sans-serif",
-                            size: 14,
-                            weight: '600'
-                        },
-                        bodyFont: {
-                            family: "'Inter', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.parsed + '%';
-                            }
+                        padding: 8,
+                        callback: function(value) {
+                            return value + '%';
                         }
                     }
                 },
-                cutout: '70%'
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    border: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#4b5563',
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 12
+                        },
+                        padding: 8
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#1f2937',
+                    titleFont: {
+                        family: "'Inter', sans-serif",
+                        size: 14,
+                        weight: '600'
+                    },
+                    bodyFont: {
+                        family: "'Inter', sans-serif",
+                        size: 13
+                    },
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + '% Turnout';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const ethnicityCtx = document.getElementById('ethnicityChart').getContext('2d');
+    new Chart(ethnicityCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['South Asian', 'Middle Eastern', 'African', 'Southeast Asian'],
+            datasets: [{
+                data: [45, 30, 15, 10],
+                backgroundColor: [
+                    '#2563eb',  // Primary blue
+                    '#7c3aed',  // Purple
+                    '#9333ea',  // Violet
+                    '#c084fc'   // Light purple
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    align: 'center',
+                    labels: {
+                        color: '#4b5563',
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 12
+                        },
+                        boxWidth: 8
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#1f2937',
+                    titleFont: {
+                        family: "'Inter', sans-serif",
+                        size: 14,
+                        weight: '600'
+                    },
+                    bodyFont: {
+                        family: "'Inter', sans-serif",
+                        size: 13
+                    },
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Filter functions
+    function filterLastElection() {
+        // Update chart data for the most recent election (November 2024)
+        turnoutChart.data.labels = ['Nov 24'];
+        turnoutChart.data.datasets[0].data = [76];
+        turnoutChart.update();
+
+        // Update KPI cards
+        document.querySelector('.stat-value').textContent = '76%';
+        document.querySelector('.text-success').innerHTML = `
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+            <span>4.2%</span>
+        `;
+
+        // Update jurisdiction data
+        const topJurisdictions = document.querySelector('.top-jurisdictions');
+        if (topJurisdictions) {
+            // Update with November 2024 data
+            topJurisdictions.innerHTML = `
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="font-medium">King County</span>
+                        <span class="stat-value">89,450</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update active button state
+        document.querySelectorAll('header button').forEach(btn => {
+            btn.classList.remove('text-primary');
+            if (btn.textContent.includes('Last Election')) {
+                btn.classList.add('text-primary');
             }
         });
 
-        // Filter functions
-        function filterLastElection() {
-            // Update chart data for the most recent election (November 2024)
-            turnoutChart.data.labels = ['Nov 24'];
-            turnoutChart.data.datasets[0].data = [76];
-            turnoutChart.update();
+        lucide.createIcons();
+    }
 
-            // Update KPI cards
-            document.querySelector('.stat-value').textContent = '76%';
-            document.querySelector('.text-success').innerHTML = `
-                <i data-lucide="trending-up" class="w-4 h-4"></i>
-                <span>4.2%</span>
-            `;
+    function showDateRangePicker() {
+        document.getElementById('dateRangePicker').classList.remove('hidden');
+    }
 
-            // Update jurisdiction data
-            const topJurisdictions = document.querySelector('.top-jurisdictions');
-            if (topJurisdictions) {
-                // Update with November 2024 data
-                topJurisdictions.innerHTML = `
-                    <div>
-                        <div class="flex justify-between mb-2">
-                            <span class="font-medium">King County</span>
-                            <span class="stat-value">89,450</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-bar-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                `;
-            }
+    function closeDateRangePicker() {
+        document.getElementById('dateRangePicker').classList.add('hidden');
+    }
 
-            // Update active button state
-            document.querySelectorAll('header button').forEach(btn => {
-                btn.classList.remove('text-primary');
-                if (btn.textContent.includes('Last Election')) {
-                    btn.classList.add('text-primary');
-                }
-            });
+    function applyDateRange() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
 
-            lucide.createIcons();
+        if (!startDate || !endDate) {
+            alert('Please select both start and end dates');
+            return;
         }
 
-        function showDateRangePicker() {
-            document.getElementById('dateRangePicker').classList.remove('hidden');
+        // Format dates for display
+        const formattedStartDate = new Date(startDate).toLocaleDateString();
+        const formattedEndDate = new Date(endDate).toLocaleDateString();
+
+        // Update the displayed date range
+        const dateRangeElement = document.querySelector('[x-data*="dateRange"]');
+        if (dateRangeElement) {
+            const alpineData = Alpine.raw(dateRangeElement.__x.$data);
+            alpineData.dateRange = `${formattedStartDate} - ${formattedEndDate}`;
+            alpineData.open = false;
         }
 
-        function closeDateRangePicker() {
-            document.getElementById('dateRangePicker').classList.add('hidden');
-        }
+        // Update chart with filtered data
+        const filteredData = filterDataByDateRange(startDate, endDate);
+        turnoutChart.data.labels = filteredData.labels;
+        turnoutChart.data.datasets[0].data = filteredData.data;
+        turnoutChart.update();
+    }
 
-        function applyDateRange() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-
-            if (!startDate || !endDate) {
-                alert('Please select both start and end dates');
-                return;
-            }
-
-            // Format dates for display
-            const formattedStartDate = new Date(startDate).toLocaleDateString();
-            const formattedEndDate = new Date(endDate).toLocaleDateString();
-
-            // Update the displayed date range
-            const dateRangeElement = document.querySelector('[x-data*="dateRange"]');
-            if (dateRangeElement) {
-                const alpineData = Alpine.raw(dateRangeElement.__x.$data);
-                alpineData.dateRange = `${formattedStartDate} - ${formattedEndDate}`;
-                alpineData.open = false;
-            }
-
-            // Update chart with filtered data
-            const filteredData = filterDataByDateRange(startDate, endDate);
-            turnoutChart.data.labels = filteredData.labels;
-            turnoutChart.data.datasets[0].data = filteredData.data;
-            turnoutChart.update();
-        }
-
-        function filterDataByDateRange(startDate, endDate) {
-            // This is a placeholder function - in reality, you would fetch data from your backend
-            const allData = {
-                labels: ['Aug 23', 'Nov 23', 'Aug 24', 'Nov 24'],
-                data: [65, 72, 68, 76]
-            };
-
-            // Filter data based on date range
-            // This is simplified - you should use proper date comparison
-            return allData;
-        }
-
-        // Cache common filter combinations
-        const cachedFilters = {
-            'last-election': {
-                period: 'November 2024',
-                jurisdiction: 'County',
-                ethnicity: 'All'
-            }
+    function filterDataByDateRange(startDate, endDate) {
+        // This is a placeholder function - in reality, you would fetch data from your backend
+        const allData = {
+            labels: ['Aug 23', 'Nov 23', 'Aug 24', 'Nov 24'],
+            data: [65, 72, 68, 76]
         };
 
-        // Handle filter changes
-        document.querySelectorAll('input[type="checkbox"], button').forEach(element => {
-            element.addEventListener('click', () => {
-                // Simulate loading state for filter changes
-                const overlay = document.createElement('div');
-                overlay.className = 'absolute inset-0 bg-surface-0 bg-opacity-50 flex items-center justify-center';
-                overlay.innerHTML = '<div class="spinner"></div>';
+        // Filter data based on date range
+        // This is simplified - you should use proper date comparison
+        return allData;
+    }
 
-                setTimeout(() => {
-                    overlay.remove();
-                }, 500);
-            });
-        });
-    </script>
-
-    <script>
-  async function refreshKPIs(electionLabel) {
-  const res = await fetch('/api/election-metrics', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ election: electionLabel })
-  });
-
-  // Extract first row
-   const result = await res.json();
-    const m = result.data?.[0] || {};
-  console.log(res)
-  document.getElementById('kpi-total').textContent  = Number(m.total_voters || 0).toLocaleString();
-  document.getElementById('kpi-turnout').textContent= (m.turnout_pct ?? 0) + '%';
-  document.getElementById('kpi-new').textContent    = Number(m.new_regs || 0).toLocaleString();
-  document.getElementById('kpi-active').textContent = `${m.active_legis || 0} of ${m.total_legis || 0}`;
-}
-
-              async function refreshTurnoutChart(election) {
-        const res = await fetch('/api/turnout-series');
-        const { labels, data } = await res.json();
-
-        if (window.turnoutChart) {
-          window.turnoutChart.data.labels = labels;
-          window.turnoutChart.data.datasets[0].data = data;
-
-          // Highlight the selected election in dark blue
-          window.turnoutChart.data.datasets[0].backgroundColor = labels.map(
-            (label) => label === election ? '#1d4ed8' : '#2563eb'
-          );
-
-          window.turnoutChart.update();
+    // Cache common filter combinations
+    const cachedFilters = {
+        'last-election': {
+            period: 'November 2024',
+            jurisdiction: 'County',
+            ethnicity: 'All'
         }
-      }
+    };
+
+    // Handle filter changes
+    document.querySelectorAll('input[type="checkbox"], button').forEach(element => {
+        element.addEventListener('click', () => {
+            // Simulate loading state for filter changes
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 bg-surface-0 bg-opacity-50 flex items-center justify-center';
+            overlay.innerHTML = '<div class="spinner"></div>';
+
+            setTimeout(() => {
+                overlay.remove();
+            }, 500);
+        });
+    });
+</script>
+
+<script>
+    async function refreshKPIs(electionLabel) {
+    const res = await fetch('/api/election-metrics', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ election: electionLabel })
+    });
+
+    // Extract first row
+     const result = await res.json();
+      const m = result.data?.[0] || {};
+    console.log(m)
+    document.getElementById('kpi-total').textContent  = Number(m.total_voters || 0).toLocaleString();
+    document.getElementById('kpi-turnout').textContent= (m.turnout_pct ?? 0) + '%';
+    document.getElementById('kpi-new').textContent    = Number(m.new_regs || 0).toLocaleString();
+    document.getElementById('kpi-active').textContent = `${m.active_legis || 0} of ${m.total_legis || 0}`;
+  }
+
+                async function refreshTurnoutChart(election) {
+          const res = await fetch('/api/turnout-series');
+          const { labels, data } = await res.json();
+
+          if (window.turnoutChart) {
+            window.turnoutChart.data.labels = labels;
+            window.turnoutChart.data.datasets[0].data = data;
+
+            // Highlight the selected election in dark blue
+            window.turnoutChart.data.datasets[0].backgroundColor = labels.map(
+              (label) => label === election ? '#1d4ed8' : '#2563eb'
+            );
+
+            window.turnoutChart.update();
+          }
+        }
 
 
-              // Run on page load
-              window.addEventListener('DOMContentLoaded', () => {
-                refreshKPIs('Nov 2024');
-                refreshTurnoutChart();
-              });
-    </script>
+                // Run on page load
+                window.addEventListener('DOMContentLoaded', () => {
+                  refreshKPIs('Nov 2024');
+                  refreshTurnoutChart();
+                });
+</script>
 
 
 </body>
