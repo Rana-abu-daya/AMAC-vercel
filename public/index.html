@@ -1280,6 +1280,7 @@ async function refreshKPIs(election) {
      });
 
     function renderJurisdictions(election, mode = "count") {
+    console.log(election)
   const jurisdictions = window.jurisdictionCache[election];
   if (!jurisdictions) return;
 
