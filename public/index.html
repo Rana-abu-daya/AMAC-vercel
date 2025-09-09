@@ -306,34 +306,59 @@
         <div class="w-full md:flex-1 bg-white rounded-lg shadow-sm p-2">
             <h3 class="text-xs font-medium mb-1.5">Election Period</h3>
             <div class="dropdown-container" x-data="{
-      open: false,
-      selectedElection: 'Nov 2024',
-      elections: ['Aug 2025', 'Nov 2024', 'Aug 2024', 'Nov 2023', 'Aug 2023', 'Feb 2024'],
-      updateElection(election) {
-        this.selectedElection = election;
-        refreshKPIs(election);
-        refreshTurnoutChart(election);
-      }
-}">
-                <button @click="open = !open" class="...">
-                    <i data-lucide="calendar" class="w-4 h-4 text-gray-500"></i>
-                    <span x-text="selectedElection"></span>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
-                </button>
+  open: false,
+  selectedElection: 'Nov 2024',
+  elections: ['Aug 2025', 'Nov 2024', 'Aug 2024', 'Nov 2023', 'Aug 2023', 'Feb 2024'],
+  turnoutData: {
+    'Aug 2025': 0,
+    'Nov 2024': 76,
+    'Aug 2024': 68,
+    'Nov 2023': 72,
+    'Aug 2023': 65,
+    'Feb 2024': 58
+  },
+  updateElection(election) {
+    this.selectedElection = election;
+    refreshKPIs(election);
 
-                <div x-show="open" @click.away="open = false" class="dropdown-menu">
-                    <template x-for="election in elections" :key="election">
-                        <button
-                                type="button"
-                                @click="updateElection(election); open = false"
-                                :class="election === 'Nov 2024' || election === 'Aug 2024' ? 'font-bold text-primary' : ''"
-                                class="w-full text-left px-3 py-1.5 hover:bg-gray-50 text-sm"
-                                x-text="election">
-                        </button>
-                    </template>
+    // ✅ Now this works
+    document.querySelectorAll('.stat-value')[1].textContent = this.turnoutData[election] + '%';
+
+    if (window.turnoutChart) {
+      const allElections = Object.keys(this.turnoutData);
+      const data = allElections.map(e => this.turnoutData[e]);
+      window.turnoutChart.data.datasets[0].data = data;
+      window.turnoutChart.data.datasets[0].backgroundColor = data.map((d, i) =>
+        allElections[i] === election ? '#1d4ed8' : '#2563eb'
+      );
+      window.turnoutChart.update();
+    }
+  }
+}">
+                <button @click="open = !open" class="w-full h-[34px] flex items-center justify-between bg-white border border-gray-200 rounded px-2 hover:border-gray-300 transition-colors">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-4 h-4 text-gray-500"></i>
+                        <span class="text-sm text-gray-900 leading-none" x-text="selectedElection"></span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 flex-shrink-0"></i>
+                </button>
+                <div x-show="open" @click.away="open = false" class="dropdown-menu mt-1">
+                    <div class="py-1">
+                        <template x-for="election in elections" :key="election">
+                            <button
+                                    type="button"
+                                    @click="updateElection(election); open = false"
+                                    :class="[
+    'w-full text-left px-3 py-1.5 hover:bg-gray-50 text-sm',
+    election === 'Nov 2024' || election === 'Aug 2024' ? 'font-bold text-primary' : ''
+  ]"
+                                    x-text="election">
+                            </button>
+
+                        </template>
+                    </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Jurisdiction Type -->
@@ -341,7 +366,7 @@
             <h3 class="text-xs font-medium mb-1.5">Jurisdiction</h3>
             <div class="dropdown-container"
                  x-data="{
-                        open: false, 
+                        open: false,
                         selected: 'State Level',
                         updateView() {
                             const data = {
@@ -353,10 +378,10 @@
 
                             // Update voter count with selected jurisdiction's data
                             const totalVoters = data[this.selected]?.count || 0;
-                            
+
                             // Update the stats
                             document.querySelectorAll('.stat-value')[0].textContent = totalVoters.toLocaleString();
-                            
+
                             // Update the map title based on selection
                             const mapTitle = document.querySelector('#map-title');
                             if (mapTitle) {
@@ -405,7 +430,7 @@
             <h3 class="text-xs font-medium mb-1.5">Ethnicity</h3>
             <div class="dropdown-container"
                  x-data="{
-                        open: false, 
+                        open: false,
                         selected: ['South Asian', 'Middle Eastern'],
                         updateView() {
                             const ethnicityData = {
@@ -425,7 +450,7 @@
 
                             // Update the donut chart
                             const ctx = document.getElementById('ethnicityChart').getContext('2d');
-                            
+
                             // Create new data for selected ethnicities
                             const chartData = {
                                 labels: this.selected,
@@ -595,18 +620,18 @@
 <!-- Chat Interface -->
 <div class="chat-container"
      x-data="{
-            expanded: false, 
+            expanded: false,
             messages: [],
             sendMessage(text) {
                 if (text.trim()) {
                     this.messages.push({type: 'user', text: text});
                     setTimeout(() => {
                         this.messages.push({
-                            type: 'ai', 
+                            type: 'ai',
                             text: 'Based on the voter data, ' + this.generateResponse(text)
                         });
                         this.$nextTick(() => {
-                            document.getElementById('chat-messages').scrollTop = 
+                            document.getElementById('chat-messages').scrollTop =
                             document.getElementById('chat-messages').scrollHeight;
                         });
                     }, 300);
@@ -1313,5 +1338,48 @@
         });
     });
 </script>
+
+<script>
+    async function refreshKPIs(election) {
+      // Select KPI elements
+      const statValues = document.querySelectorAll('.stat-value');
+      const totalVotersEl = statValues[0];
+      const turnoutEl = statValues[1];
+      const newRegsEl = statValues[2];
+      const activeDistrictsEl = statValues[3];
+
+      // Default reset → set everything to 0
+      totalVotersEl.textContent = "0";
+      turnoutEl.textContent = "0%";
+      newRegsEl.textContent = "0";
+      activeDistrictsEl.textContent = "0";
+
+      // Only fetch from backend for Nov 2024 or Aug 2024
+      if (election === "Nov 2024" || election === "Aug 2024") {
+        try {
+          const res = await fetch("/api/election-metrics", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ election })
+          });
+          const data = await res.json();
+
+          // Update with real numbers
+          totalVotersEl.textContent = data.total_voters?.toLocaleString() || "0";
+          turnoutEl.textContent = (data.turnout_pct || 0) + "%";
+          newRegsEl.textContent = data.new_regs?.toLocaleString() || "0";
+          activeDistrictsEl.textContent = data.active_legis || "0";
+        } catch (err) {
+          console.error("Failed to fetch election metrics:", err);
+        }
+      }
+    }
+
+    // ✅ Run once on load with default "Nov 2024"
+    window.addEventListener("DOMContentLoaded", () => {
+      refreshKPIs("Nov 2024");
+    });
+</script>
+
 </body>
 </html>

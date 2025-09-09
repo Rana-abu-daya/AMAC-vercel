@@ -6,21 +6,39 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  try {
-    const proxyUrl = process.env.FIXIE_URL;
-    const agent = new HttpsProxyAgent(proxyUrl);
+  const { election } = req.body;
 
-    const query = `
-      SELECT
-        count() AS total_voters,
-        round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 1) AS turnout_pct,
-        countIf(toYear(registrationdate) = 2024) AS new_regs,
-        uniqExact(legislativedistrict) AS active_legis,
-        countDistinct(legislativedistrict) AS total_legis
-      FROM silver_sos_2024_09_voters_llama2_3_4
-      WHERE multiSearchAny(lower(llama_names), ['muslim','revert'])
-      FORMAT JSON
-    `;
+  try {
+    let query;
+
+    if (election === "Nov 2024") {
+      query = `
+        SELECT
+          count() AS total_voters,
+          round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 0) AS turnout_pct,
+          countIf(toYear(registrationdate) = 2024) AS new_regs,
+          uniqExact(legislative_district) AS active_legis,
+          (SELECT uniqExact(legislative_district) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
+        FROM silver_sos_2024_09_voters_llama2_3_4
+        WHERE multiSearchAny(lower(llama_names), ['muslim','revert'])
+        FORMAT JSON
+      `;
+    } else if (election === "Aug 2024") {
+      query = `
+        SELECT
+          count() AS total_voters,
+          round(100 * countIf(lower(Aug_2024_Status) = 'voted') / count(), 0) AS turnout_pct,
+          countIf(toYear(registrationdate) = 2024) AS new_regs,
+          uniqExact(legislative_district) AS active_legis,
+          (SELECT uniqExact(legislative_district) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
+        FROM silver_sos_2024_09_voters_llama2_3_4
+        WHERE multiSearchAny(lower(llama_names), ['muslim','revert'])
+        FORMAT JSON
+      `;
+    }
+
+    const proxyUrl = process.env.FIXIE_URL;
+    const agent = new (await import("https-proxy-agent")).HttpsProxyAgent(proxyUrl);
 
     const clickhouseRes = await fetch(
       "https://pod38uxp1w.us-west-2.aws.clickhouse.cloud:8443/?database=default",
@@ -39,14 +57,8 @@ export default async function handler(req, res) {
       }
     );
 
-    const raw = await clickhouseRes.json();
-
-    // ✅ Normalize result for frontend
-    res.status(200).json({
-      data: raw.data || [],       // always an array
-      meta: raw.meta || [],
-      stats: raw.statistics || {}
-    });
+    const data = await clickhouseRes.json();
+    res.status(200).json(data.data?.[0] || {});
   } catch (err) {
     console.error("ClickHouse error:", err);
     res.status(500).json({ error: err.message });
