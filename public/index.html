@@ -1248,19 +1248,22 @@ async function refreshKPIs(election) {
       console.error("Failed to fetch election metrics:", err);
     }
   }
+ const modeSelect = document.querySelector("#jurisdiction-mode");
+  if (modeSelect) modeSelect.value = "count";
 
   // ✅ Top Jurisdictions (fetch once per election, store both count + turnout)
   try {
     const res = await fetch("/api/top-jurisdictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ election })
-    });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ election })
+});
+
     const jurisdictions = await res.json();
 
     // store in cache
     window.jurisdictionCache[election] = jurisdictions;
-
+    console(window.jurisdictionCache[election])
     // render default → count
     renderJurisdictions(election, "count");
   } catch (err) {
