@@ -1263,7 +1263,7 @@ async function refreshKPIs(election) {
 
     // store in cache
     window.jurisdictionCache[election] = jurisdictions;
-    console(window.jurisdictionCache[election])
+    console.log(window.jurisdictionCache[election])
     // render default → count
     renderJurisdictions(election, "count");
   } catch (err) {
