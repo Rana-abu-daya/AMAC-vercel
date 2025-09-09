@@ -318,15 +318,15 @@
     'Feb 2024': 58
   },
   updateElection(election) {
-  this.selectedElection = election;
-  window.currentElection = election;   // ✅ save globally
-  refreshKPIs(election);
+         this.selectedElection = election;
+         window.currentElection = election;   // ✅ save globally
+         refreshKPIs(election);
             const modeSelect = document.getElementById('jurisdiction-mode');
             if (modeSelect) {
             modeSelect.value = 'count';
             }
+
             renderJurisdictions(election, 'count');
-            }
 
     // ✅ Now this works
     document.querySelectorAll('.stat-value')[1].textContent = this.turnoutData[election] + '%';
