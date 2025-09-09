@@ -14,13 +14,18 @@ export default async function handler(req, res) {
     if (election === "Nov 2024") {
       query = `
        SELECT
-         count() AS total_voters,
-         round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 0) AS turnout_pct,
-         countIf(toYear(registrationdate) = 2024) AS new_regs,
-         uniqExact(legislativedistrict) AS active_legis,
-         (SELECT uniqExact(legislativedistrict) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
+           count() AS total_voters,
+           round(100 * countIf(lower(ballot_status) = 'accepted') / count(), 0) AS turnout_pct,
+           countIf(toYear(registrationdate) = 2024) AS new_regs,
+           uniqExact(toInt32OrNull(legislativedistrict)) AS active_legis,
+           (
+               SELECT uniqExact(toInt32OrNull(legislativedistrict))
+               FROM silver_sos_2024_09_voters_llama2_3_4
+               WHERE legislativedistrict != ''
+           ) AS total_legis
        FROM silver_sos_2024_09_voters_llama2_3_4
-       WHERE multiSearchAny(lower(llama_names), ['muslim', 'revert'])
+       WHERE (lower(llama_names) LIKE 'muslim' OR lower(llama_names) LIKE 'revert')
+         AND legislativedistrict != ''
        FORMAT JSON
 
       `;
@@ -30,10 +35,15 @@ export default async function handler(req, res) {
         count() AS total_voters,
         round(100 * countIf(upper(Aug_2024_Status) = 'VOTED') / count(), 0) AS turnout_pct,
         countIf(toYear(registrationdate) = 2024) AS new_regs,
-        uniqExact(legislativedistrict) AS active_legis,
-        (SELECT uniqExact(legislativedistrict) FROM silver_sos_2024_09_voters_llama2_3_4) AS total_legis
-      FROM silver_sos_2024_09_voters_llama2_3_4
-      WHERE multiSearchAny(lower(llama_names), ['muslim', 'revert'])
+       uniqExact(toInt32OrNull(legislativedistrict)) AS active_legis,
+                  (
+                      SELECT uniqExact(toInt32OrNull(legislativedistrict))
+                      FROM silver_sos_2024_09_voters_llama2_3_4
+                      WHERE legislativedistrict != ''
+                  ) AS total_legis
+              FROM silver_sos_2024_09_voters_llama2_3_4
+              WHERE (lower(llama_names) LIKE 'muslim' OR lower(llama_names) LIKE 'revert')
+                AND legislativedistrict != ''
       FORMAT JSON
 
       `;
