@@ -1,39 +1,40 @@
-import fetch from "node-fetch";
-import { HttpsProxyAgent } from "https-proxy-agent";
+import { ClickHouse } from '@clickhouse/client';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
+const client = new ClickHouse({
+  host: process.env.CLICKHOUSE_HOST,
+  username: process.env.CLICKHOUSE_USER,
+  password: process.env.CLICKHOUSE_PASS,
+  database: 'default',
+  tls: { rejectUnauthorized: true },
+  httpAgent: new HttpsProxyAgent(process.env.FIXIE_URL)
+});
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const proxyUrl = process.env.FIXIE_URL;
-    const agent = new HttpsProxyAgent(proxyUrl);
+    const TABLE = "silver_sos_2024_09_voters_llama2_3_4";
+    const COHORT = "multiSearchAny(lower(llama_names), ['muslim','revert'])";
 
-    const query = `SELECT count() AS total_voters, 42 AS turnout_pct, 5 AS new_regs, 12 AS active_legis, 49 AS total_legis FORMAT JSON`;
+    // KPIs
+    const [voters, regs, legis] = await Promise.all([
+      client.query({ query: `SELECT count() AS total_voters FROM ${TABLE} WHERE ${COHORT} FORMAT JSONEachRow` }).then(r => r.json()),
+      client.query({ query: `SELECT count() AS new_regs FROM ${TABLE} WHERE ${COHORT} AND toYear(registrationdate) = 2024 FORMAT JSONEachRow` }).then(r => r.json()),
+      client.query({ query: `SELECT uniqExact(legislativedistrict) AS active_legis, 49 AS total_legis FROM ${TABLE} WHERE ${COHORT} FORMAT JSONEachRow` }).then(r => r.json()),
+    ]);
 
-    const clickhouseRes = await fetch(
-      "https://pod38uxp1w.us-west-2.aws.clickhouse.cloud:8443/?database=default",
-      {
-        method: "POST",
-        headers: {
-          Authorization:
-            "Basic " +
-            Buffer.from(
-              process.env.CLICKHOUSE_USER + ":" + process.env.CLICKHOUSE_PASSWORD
-            ).toString("base64"),
-          "Content-Type": "text/plain", // 👈 important
-        },
-        body: query, // 👈 send raw SQL, not JSON
-        agent,
-      }
-    );
+    res.status(200).json({
+      total_voters: voters[0].total_voters,
+      new_regs: regs[0].new_regs,
+      active_legis: legis[0].active_legis,
+      total_legis: legis[0].total_legis
+    });
 
-    // Parse JSON response from ClickHouse
-    const data = await clickhouseRes.json();
-    res.status(200).json(data);
   } catch (err) {
-    console.error("ClickHouse error:", err);
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 }

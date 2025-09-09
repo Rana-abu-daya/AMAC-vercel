@@ -1216,10 +1216,21 @@
    console.log(m);
 
 
+  async function refreshKPIs(electionLabel) {
+  const res = await fetch('/api/election-metrics', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ election: electionLabel })
+  });
+
+  // Extract first row
+  const m = result.data?.[0] || {};
+
   document.getElementById('kpi-total').textContent  = Number(m.total_voters || 0).toLocaleString();
   document.getElementById('kpi-turnout').textContent= (m.turnout_pct ?? 0) + '%';
   document.getElementById('kpi-new').textContent    = Number(m.new_regs || 0).toLocaleString();
   document.getElementById('kpi-active').textContent = `${m.active_legis || 0} of ${m.total_legis || 0}`;
+}
 }
 
               async function refreshTurnoutChart(election) {
