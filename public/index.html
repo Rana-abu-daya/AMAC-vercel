@@ -320,34 +320,8 @@
     "Legislative Districts": "/assets/wa_legislative_districts.geojson",
     "Cities": "/assets/CityLimits.geojson",
     "School Districts": "/assets/Washington_School_Districts_2024.geojson"
+    "State Level": "/assets/washington.geojson"
   };
-
-  // Handle state level manually
-  if (jurisdiction === "State Level") {
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: { STATE_NAME: "Washington State" },
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [
-                [-124.763068,45.543541], // SW
-               [-124.763068,49.002494], // NW
-                [-116.915989,49.002494], // NE
-                [-116.915989,45.543541], // SE
-                [-124.763068,45.543541] // back to SW
-              ]
-            ]
-          }
-        }
-      ]
-    };
-  }
-
-
   const filePath = fileMap[jurisdiction];
   if (!filePath) {
     console.warn(`No GeoJSON mapping for jurisdiction: ${jurisdiction}`);
