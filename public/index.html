@@ -601,7 +601,17 @@ if (window.map && window.map.getSource("voter-data")) {
                 }
               }
             }
-
+           function getKeyField(jurisdiction) {
+  switch (jurisdiction) {
+    case "Counties": return "JURISDICT_NM";
+    case "Congressional Districts": return "CD";
+    case "Legislative Districts": return "LD";
+    case "Cities": return "CITY_NAME";
+    case "School Districts": return "SD_NAME";
+    case "State Level": return "STATE_NAME";
+    default: return "JURISDICT_NM";
+  }
+}
 
             async updateView() {
   const election = window.currentElection || 'Nov 2024';
@@ -658,17 +668,7 @@ if (window.map && window.map.getSource("voter-data")) {
   }
 }
 
-            function getKeyField(jurisdiction) {
-  switch (jurisdiction) {
-    case "Counties": return "JURISDICT_NM";
-    case "Congressional Districts": return "CD";
-    case "Legislative Districts": return "LD";
-    case "Cities": return "CITY_NAME";
-    case "School Districts": return "SD_NAME";
-    case "State Level": return "STATE_NAME";
-    default: return "JURISDICT_NM";
-  }
-}
+
 
         </script>
 
