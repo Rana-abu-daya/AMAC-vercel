@@ -392,7 +392,7 @@ default: return "JURISDICT_NM";
             'Cities',
             'School Districts'
           ],
-          async updateView() {
+          async updateView2() {
             const election = window.currentElection || 'Nov 2024';
             const jurisdiction = this.selected;
 
@@ -442,6 +442,94 @@ console.log(data)
           }
         }
       }
+
+            async updateView() {
+  const election = window.currentElection || 'Nov 2024';
+  const jurisdiction = this.selected;
+
+  // Update title above the map
+  const mapTitle = document.getElementById('map-title');
+  if (mapTitle) {
+    mapTitle.textContent = `Voter Distribution by ${jurisdiction}`;
+  }
+
+  try {
+    // Load stats from backend
+    const res = await fetch('/api/jurisdiction-map', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ election, jurisdiction })
+    });
+    const { data } = await res.json();
+
+    // Load shapefile
+    const base = await loadBaseGeojson(jurisdiction);
+
+    // Merge stats with shapefile
+    const geojson = mergeDataWithGeojson(base, data, getKeyField(jurisdiction));
+
+    // ✅ Only update data, not re-add source/layer
+    if (map.getSource('voter-data')) {
+      map.getSource('voter-data').setData(geojson);
+    } else {
+      // first time only
+      map.addSource('voter-data', { type: 'geojson', data: geojson });
+      map.addLayer({
+        id: 'voter-choropleth',
+        type: 'fill',
+        source: 'voter-data',
+        paint: {
+          'fill-color': [
+            'interpolate', ['linear'], ['get', 'voter_count'],
+            0, '#e0f2ff',
+            500, '#93c5fd',
+            5000, '#3b82f6',
+            10000, '#1d4ed8',
+            30000, '#1e3a8a'
+          ],
+          'fill-opacity': 0.7,
+          'fill-outline-color': '#ffffff'
+        }
+      });
+
+      // ✅ Add hover layer only once
+      map.addLayer({
+        id: 'voter-choropleth-hover',
+        type: 'line',
+        source: 'voter-data',
+        paint: { 'line-color': '#ffffff', 'line-width': 2 },
+        filter: ['==', ['get', 'name'], null]
+      });
+
+      // ✅ Popup only once
+      const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
+
+      map.on('mousemove', 'voter-choropleth', (e) => {
+        if (e.features.length > 0) {
+          const f = e.features[0];
+          map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], f.properties.name || null]);
+          popup.setLngLat(e.lngLat)
+            .setHTML(`
+              <div class="p-2">
+                <h4 class="font-medium">${f.properties.name || "Unknown"}</h4>
+                <p class="text-sm">Registered Voters: ${Number(f.properties.voter_count || 0).toLocaleString()}</p>
+                <p class="text-sm">Turnout: ${f.properties.turnout || 0}%</p>
+              </div>
+            `)
+            .addTo(map);
+        }
+      });
+
+      map.on('mouseleave', 'voter-choropleth', () => {
+        map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], null]);
+        popup.remove();
+      });
+    }
+  } catch (err) {
+    console.error("Failed to update jurisdiction map:", err);
+  }
+}
+
         </script>
 
 
@@ -1747,7 +1835,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 </script>
 <script>
-    async function loadJurisdictionMap(election, jurisdiction) {
+    async function loadJurisdictionMap2(election, jurisdiction) {
   try {
     const res = await fetch("/api/jurisdiction-map", {
       method: "POST",
