@@ -841,6 +841,7 @@ if (window.map && window.map.getSource("voter-data")) {
 
         map.on('load', () => {
             // Add the data source
+            console.log(sampleData)
             map.addSource('voter-data', {
                 'type': 'geojson',
                 'data': sampleData
