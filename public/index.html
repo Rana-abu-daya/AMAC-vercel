@@ -882,8 +882,10 @@ if (window.map && window.map.getSource("voter-data")) {
     const feature = e.features[0];
 
     // ✅ safe update
-    map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], feature.properties.name || null]);
-
+   map.setFilter(
+  'voter-choropleth-hover',
+  ['==', ['get', 'name'], feature?.properties?.name ?? null]
+);
     popup.setLngLat(e.lngLat)
       .setHTML(`
         <div class="p-2">
@@ -913,8 +915,10 @@ map.on('mouseleave', 'voter-choropleth', () => {
                     const feature = e.features[0];
 
                     // Update hover effect
-                    map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], feature.properties.name]);
-
+map.setFilter(
+  'voter-choropleth-hover',
+  ['==', ['get', 'name'], feature?.properties?.name ?? null]
+);
                     // Show popup
                     popup.setLngLat(e.lngLat)
                         .setHTML(`
