@@ -1568,8 +1568,8 @@ function mergeDataWithGeojson(baseGeojson, data, keyField = "JURISDICT_NM") {
         properties: {
           ...feat.properties,
           name: feat.properties[keyField],  // ✅ ensure "name" always exists
-          voter_count: match ? match.voter_count : 0,
-          turnout: match ? match.turnout : 0,
+          voter_count: match ? Number(match.voter_count) : 0,
+          turnout: match ? Number(match.turnout) : 0,
         },
       };
     }),
