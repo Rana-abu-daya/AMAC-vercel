@@ -442,15 +442,15 @@ if (window.map && window.map.getSource("voter-data")) {
     type: "fill",
     source: "voter-data",
     paint: {
-         'fill-color': [
+          'fill-color': [
       'interpolate',
       ['linear'],
       ['get', 'voter_count'],
       0, '#e0f2ff',     // very light blue
-      5000, '#93c5fd',  // light-medium blue
-      15000, '#3b82f6', // medium blue
-      25000, '#1d4ed8', // dark blue
-      37000, '#1e3a8a'  // very dark blue
+      500, '#93c5fd',  // light-medium blue
+      5000, '#3b82f6', // medium blue
+      10000, '#1d4ed8', // dark blue
+      30000, '#1e3a8a'  // very dark blue
     ],
 'fill-opacity': 0.7,
 'fill-outline-color': '#ffffff'
@@ -856,10 +856,10 @@ if (window.map && window.map.getSource("voter-data")) {
       ['linear'],
       ['get', 'voter_count'],
       0, '#e0f2ff',     // very light blue
-      5000, '#93c5fd',  // light-medium blue
-      15000, '#3b82f6', // medium blue
-      25000, '#1d4ed8', // dark blue
-      37000, '#1e3a8a'  // very dark blue
+      500, '#93c5fd',  // light-medium blue
+      5000, '#3b82f6', // medium blue
+      10000, '#1d4ed8', // dark blue
+      30000, '#1e3a8a'  // very dark blue
     ],
 'fill-opacity': 0.7,
 'fill-outline-color': '#ffffff'
@@ -1511,15 +1511,15 @@ window.addEventListener("DOMContentLoaded", () => {
     type: "fill",
     source: "voter-data",
     paint: {
-       'fill-color': [
+            'fill-color': [
       'interpolate',
       ['linear'],
       ['get', 'voter_count'],
       0, '#e0f2ff',     // very light blue
-      5000, '#93c5fd',  // light-medium blue
-      15000, '#3b82f6', // medium blue
-      25000, '#1d4ed8', // dark blue
-      37000, '#1e3a8a'  // very dark blue
+      500, '#93c5fd',  // light-medium blue
+      5000, '#3b82f6', // medium blue
+      10000, '#1d4ed8', // dark blue
+      30000, '#1e3a8a'  // very dark blue
     ],
 'fill-opacity': 0.7,
 'fill-outline-color': '#ffffff'
