@@ -1495,8 +1495,8 @@ window.addEventListener("DOMContentLoaded", () => {
         type: "Feature",
         properties: {
           name: row.name,
-          voter_count: row.voter_count,
-          turnout: row.turnout,
+          voter_count: Number(row.voter_count), // ✅ ensure numeric
+      turnout: Number(row.turnout)
         },
         geometry: {
           type: "Polygon",
