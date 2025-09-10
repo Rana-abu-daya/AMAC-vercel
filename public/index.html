@@ -300,6 +300,73 @@
         </div>
     </header>
 
+        <script>
+            function jurisdictionDropdown() {
+              return {
+                open: false,
+                selected: 'State Level',
+                options: [
+                  'State Level',
+                  'Counties',
+                  'Legislative Districts',
+                  'Congressional Districts',
+                  'Cities',
+                  'School Districts'
+                ],
+                async updateView() {
+                  const election = window.currentElection || 'Nov 2024';
+                  const jurisdiction = this.selected;
+
+                  const mapTitle = document.getElementById('map-title');
+                  if (mapTitle) {
+                    mapTitle.textContent = `Voter Distribution by ${jurisdiction}`;
+                  }
+
+                  try {
+                    const res = await fetch('/api/jurisdiction-map', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ election, jurisdiction })
+                    });
+                    const { data } = await res.json();
+
+                    const base = await loadBaseGeojson(jurisdiction);
+                    const geojson = mergeDataWithGeojson(base, data, getKeyField(jurisdiction));
+
+                    if (map.getSource('voter-data')) {
+                      map.getSource('voter-data').setData(geojson);
+                    } else {
+                      map.addSource('voter-data', { type: 'geojson', data: geojson });
+                      map.addLayer({
+                        id: 'voter-choropleth',
+                        type: 'fill',
+                        source: 'voter-data',
+                        paint: {
+                          'fill-color': [
+                            'interpolate',
+                            ['linear'],
+                            ['get', 'voter_count'],
+                            0, '#e0f2ff',
+                            5000, '#93c5fd',
+                            15000, '#3b82f6',
+                            25000, '#1d4ed8',
+                            37000, '#1e3a8a'
+                          ],
+                          'fill-opacity': 0.7,
+                          'fill-outline-color': '#ffffff'
+                        }
+                      });
+                    }
+                  } catch (err) {
+                    console.error("Failed to update jurisdiction map:", err);
+                  }
+                }
+              }
+            }
+        </script>
+
+
+
     <!-- Filter Bar -->
     <div class="flex flex-col md:flex-row gap-3 mb-4">
         <!-- Election Period -->
@@ -396,9 +463,77 @@
                 </div>
             </div>
         </div>
+        <head>
+            <!-- Alpine must see jurisdictionDropdown before rendering -->
+            <script>
+                function jurisdictionDropdown() {
+                  return {
+                    open: false,
+                    selected: 'State Level',
+                    options: [
+                      'State Level',
+                      'Counties',
+                      'Legislative Districts',
+                      'Congressional Districts',
+                      'Cities',
+                      'School Districts'
+                    ],
+                    async updateView() {
+                      const election = window.currentElection || 'Nov 2024';
+                      const jurisdiction = this.selected;
+
+                      const mapTitle = document.getElementById('map-title');
+                      if (mapTitle) {
+                        mapTitle.textContent = `Voter Distribution by ${jurisdiction}`;
+                      }
+
+                      try {
+                        const res = await fetch('/api/jurisdiction-map', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ election, jurisdiction })
+                        });
+                        const { data } = await res.json();
+
+                        const base = await loadBaseGeojson(jurisdiction);
+                        const geojson = mergeDataWithGeojson(base, data, getKeyField(jurisdiction));
+
+                        if (map.getSource('voter-data')) {
+                          map.getSource('voter-data').setData(geojson);
+                        } else {
+                          map.addSource('voter-data', { type: 'geojson', data: geojson });
+                          map.addLayer({
+                            id: 'voter-choropleth',
+                            type: 'fill',
+                            source: 'voter-data',
+                            paint: {
+                              'fill-color': [
+                                'interpolate',
+                                ['linear'],
+                                ['get', 'voter_count'],
+                                0, '#e0f2ff',
+                                5000, '#93c5fd',
+                                15000, '#3b82f6',
+                                25000, '#1d4ed8',
+                                37000, '#1e3a8a'
+                              ],
+                              'fill-opacity': 0.7,
+                              'fill-outline-color': '#ffffff'
+                            }
+                          });
+                        }
+                      } catch (err) {
+                        console.error("Failed to update jurisdiction map:", err);
+                      }
+                    }
+                  }
+                }
+            </script>
+
+
 
         <script>
-            function jurisdictionDropdown() {
+            function jurisdictionDropdown1() {
               return {
                 open: false,
                 selected: 'State Level',
