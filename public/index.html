@@ -875,8 +875,32 @@ if (window.map && window.map.getSource("voter-data")) {
                     'line-color': '#ffffff',
                     'line-width': 2
                 },
-                'filter': ['==', ['get', 'name'], '']
+                'filter': ['==', ['get', 'name'], null]
             });
+            map.on('mousemove', 'voter-choropleth', (e) => {
+  if (e.features.length > 0) {
+    const feature = e.features[0];
+
+    // ✅ safe update
+    map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], feature.properties.name || null]);
+
+    popup.setLngLat(e.lngLat)
+      .setHTML(`
+        <div class="p-2">
+          <h4 class="font-medium">${feature.properties.name || 'Unknown'}</h4>
+          <p class="text-sm">Registered Voters: ${feature.properties.voter_count?.toLocaleString() || 0}</p>
+          <p class="text-sm">Turnout: ${feature.properties.turnout || 0}%</p>
+        </div>
+      `)
+      .addTo(map);
+  }
+});
+
+map.on('mouseleave', 'voter-choropleth', () => {
+  map.setFilter('voter-choropleth-hover', ['==', ['get', 'name'], null]);  // ✅ reset with null
+  popup.remove();
+});
+
 
             // Add popup on hover
             const popup = new mapboxgl.Popup({
@@ -1482,16 +1506,18 @@ window.addEventListener("DOMContentLoaded", () => {
     type: "fill",
     source: "voter-data",
     paint: {
-      "fill-color": [
-        "interpolate",
-        ["linear"],
-        ["get", "voter_count"],
-        0, "#e6efff",
-        20000, "#93c5fd",
-        40000, "#3b82f6",
-        60000, "#1d4ed8",
-        80000, "#1e40af"
-      ],
+      'fill-color': [
+  'case',
+  ['==', ['get', 'voter_count'], 0], '#f9fafb',  // gray for 0
+  ['interpolate', ['linear'], ['get', 'voter_count'],
+    0, '#f1f5fb',
+    500, '#c7d2fe',
+    2000, '#93c5fd',
+    10000, '#3b82f6',
+    20000, '#1d4ed8',
+    40000, '#1e40af'
+  ]
+],
       "fill-opacity": 0.7,
       "fill-outline-color": "#ffffff"
     }
