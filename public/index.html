@@ -314,50 +314,53 @@
     let baseGeojsonCache = {};
 
     async function loadBaseGeojson(jurisdiction) {
-      // Map jurisdiction to correct GeoJSON file
-      const fileMap = {
-        "Counties": "/assets/WA_County_Boundaries.geojson",
-        "Congressional Districts": "/assets/Congressional District.geojson",
-        "Legislative Districts": "/assets/wa_legislative_districts.geojson",
-        "Cities": "/assets/CityLimits.geojson",
-        "School Districts": "/assets/Washington_School_Districts_2024.geojson",
-        "State Level" : {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                properties: { STATE_NAME: "Washington" },
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [
-                    [
-                      [-124.848974, 45.543541], // SW
-                      [-124.848974, 49.002494], // NW
-                      [-116.916031, 49.002494], // NE
-                      [-116.916031, 45.543541], // SE
-                      [-124.848974, 45.543541], // back to SW
-                    ],
-                  ],
-                },
-              },
-            ],
-          };
-      };
+  const fileMap = {
+    "Counties": "/assets/WA_County_Boundaries.geojson",
+    "Congressional Districts": "/assets/Congressional_District.geojson",
+    "Legislative Districts": "/assets/wa_legislative_districts.geojson",
+    "Cities": "/assets/CityLimits.geojson",
+    "School Districts": "/assets/Washington_School_Districts_2024.geojson"
+  };
 
-      const filePath = fileMap[jurisdiction];
-      if (!filePath) {
-        console.warn(`No GeoJSON mapping for jurisdiction: ${jurisdiction}`);
-        return null;
-      }
+  // Handle state level manually
+  if (jurisdiction === "State Level") {
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { STATE_NAME: "Washington" },
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [-124.848974, 45.543541], // SW
+                [-124.848974, 49.002494], // NW
+                [-116.916031, 49.002494], // NE
+                [-116.916031, 45.543541], // SE
+                [-124.848974, 45.543541]  // back to SW
+              ]
+            ]
+          }
+        }
+      ]
+    };
+  }
 
-      // ✅ Cache so we don’t reload every time
-      if (!baseGeojsonCache[jurisdiction]) {
-        const res = await fetch(filePath);
-        baseGeojsonCache[jurisdiction] = await res.json();
-      }
+  const filePath = fileMap[jurisdiction];
+  if (!filePath) {
+    console.warn(`No GeoJSON mapping for jurisdiction: ${jurisdiction}`);
+    return null;
+  }
 
-      return baseGeojsonCache[jurisdiction];
-    }
+  // ✅ Cache so we don’t reload every time
+  if (!baseGeojsonCache[jurisdiction]) {
+    const res = await fetch(filePath);
+    baseGeojsonCache[jurisdiction] = await res.json();
+  }
+
+  return baseGeojsonCache[jurisdiction];
+}
 
     function mergeDataWithGeojson(baseGeojson, data, keyField = "JURISDICT_NM") {
       const lookup = {};
