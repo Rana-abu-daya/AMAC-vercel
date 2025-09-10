@@ -1511,19 +1511,20 @@ window.addEventListener("DOMContentLoaded", () => {
     source: "voter-data",
     paint: {
       'fill-color': [
-  'case',
-  ['==', ['get', 'voter_count'], 0], '#f9fafb',  // gray for 0
-  ['interpolate', ['linear'],  ['get', 'voter_count'],
-  0, '#ff0000',       // Red
-  7500, '#ff7f00',    // Orange
-  15000, '#ffff00',   // Yellow
-  22500, '#7fff00',   // Yellow-green
-  30000, '#00ff7f',   // Light green
-  37000, '#00ff00'    // Green
+  'interpolate',
+  ['linear'],
+  ['get', 'voter_count'],
+  0, '#f9fafb',   // light gray (no voters)
+  1, '#ff0000',   // red (lowest > 0)
+  7500, '#ff7f00', // orange
+  15000, '#ffff00', // yellow
+  22500, '#7fff00', // yellow-green
+  30000, '#00ff7f', // light green
+  37000, '#00ff00'  // green
 ],
 'fill-opacity': 0.7,
 'fill-outline-color': '#ffffff'
-    }
+}
   });
 }
 
