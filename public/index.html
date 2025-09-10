@@ -604,10 +604,10 @@ if (window.map && window.map.getSource("voter-data")) {
            function getKeyField(jurisdiction) {
   switch (jurisdiction) {
     case "Counties": return "JURISDICT_NM";
-    case "Congressional Districts": return "CD";
-    case "Legislative Districts": return "LD";
-    case "Cities": return "CITY_NAME";
-    case "School Districts": return "SD_NAME";
+    case "Congressional Districts": return "NAMELSAD";
+    case "Legislative Districts": return "NAMELSAD";
+    case "Cities": return "CITY_NM";
+    case "School Districts": return "LEAName";
     case "State Level": return "STATE_NAME";
     default: return "JURISDICT_NM";
   }
