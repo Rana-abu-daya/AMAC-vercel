@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     // Column mapping for ClickHouse
     const colMap = {
       'Counties': 'countycode AS name',
-      'Legislative Districts': 'legislativedistrict AS name',
+      'Legislative Districts': "concat('Legislative (House) District ', legislativedistrict) AS name",
       'Congressional Districts': 'congressionaldistrict AS name',
       'Cities': 'regcity AS name',
       'State Level': ` 'Washington State' AS name `

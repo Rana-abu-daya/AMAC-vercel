@@ -364,12 +364,9 @@
 
     function mergeDataWithGeojson(baseGeojson, data, keyField = "JURISDICT_NM") {
       const lookup = {};
-
-  data.forEach((row) => {
-    // Normalize DB name (make sure it's numeric string without leading zeros)
-    const key = row.name.toLowerCase() ?row.name.toLowerCase().toString().replace(/^0+/, "") : "";
-    lookup[key] = row;
-  });
+      data.forEach((row) => {
+        lookup[row.name.toLowerCase()] = row;
+      });
 
       return {
         type: "FeatureCollection",
@@ -401,7 +398,7 @@
 switch (jurisdiction) {
 case "Counties": return "JURISDICT_NM";
 case "Congressional Districts": return "NAMELSAD";
-case "Legislative Districts": return "SLDLST";
+case "Legislative Districts": return "NAMELSAD";
 case "Cities": return "CITY_NM";
 case "School Districts": return "LEAName";
 case "State Level": return "STATE_NAME";
