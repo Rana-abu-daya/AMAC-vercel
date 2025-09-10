@@ -410,7 +410,7 @@
                   'Cities',
                   'School Districts'
                 ],
-                async updateView() {
+                async updateView1() {
                   const election = window.currentElection || 'Nov 2024';
                   const jurisdiction = this.selected;
 
@@ -429,7 +429,7 @@
   const { data } = await res.json();
    console.log(data)
   // load shapefile once
-  const base = await loadBaseGeojson();
+  const base = await loadBaseGeojson(jurisdiction);
 
   // merge stats with shapefile
   const geojson = mergeDataWithGeojson(base, data, "JURISDICT_NM");
@@ -466,6 +466,75 @@ if (window.map && window.map.getSource("voter-data")) {
                 }
               }
             }
+
+
+            async updateView() {
+  const election = window.currentElection || 'Nov 2024';
+  const jurisdiction = this.selected;
+
+  // Update map title
+  const mapTitle = document.getElementById('map-title');
+  if (mapTitle) {
+    mapTitle.textContent = `Voter Distribution by ${jurisdiction}`;
+  }
+
+  try {
+    // Load stats from backend
+    const res = await fetch('/api/jurisdiction-map', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ election, jurisdiction })
+    });
+    const { data } = await res.json();
+
+    // Load correct boundary GeoJSON
+    const base = await loadBaseGeojson(jurisdiction);
+
+    // Merge DB stats into boundary features
+    const geojson = mergeDataWithGeojson(base, data, getKeyField(jurisdiction));
+
+    // Push into Mapbox
+    if (map.getSource('voter-data')) {
+      map.getSource('voter-data').setData(geojson);
+    } else {
+      map.addSource('voter-data', { type: 'geojson', data: geojson });
+      map.addLayer({
+        id: 'voter-choropleth',
+        type: 'fill',
+        source: 'voter-data',
+        paint: {
+          'fill-color': [
+            'interpolate',
+            ['linear'],
+          ['get', 'voter_count'],
+      0, '#e0f2ff',     // very light blue
+      500, '#93c5fd',  // light-medium blue
+      5000, '#3b82f6', // medium blue
+      10000, '#1d4ed8', // dark blue
+      30000, '#1e3a8a'  // very dark blue
+    ],
+          'fill-opacity': 0.7,
+          'fill-outline-color': '#ffffff'
+        }
+      });
+    }
+  } catch (err) {
+    console.error("Failed to update jurisdiction map:", err);
+  }
+}
+
+            function getKeyField(jurisdiction) {
+  switch (jurisdiction) {
+    case "Counties": return "JURISDICT_NM";
+    case "Congressional Districts": return "CD";
+    case "Legislative Districts": return "LD";
+    case "Cities": return "CITY_NAME";
+    case "School Districts": return "SD_NAME";
+    case "State Level": return "STATE_NAME";
+    default: return "JURISDICT_NM";
+  }
+}
+
         </script>
 
 
@@ -1538,13 +1607,41 @@ window.addEventListener("DOMContentLoaded", () => {
 <script>
     let baseGeojson = null;
 
-async function loadBaseGeojson() {
+async function loadBaseGeojson1() {
   if (!baseGeojson) {
     const res = await fetch("/assets/WA_County_Boundaries.geojson");
     baseGeojson = await res.json();
   }
   return baseGeojson;
 }
+
+let baseGeojsonCache = {};
+
+async function loadBaseGeojson(jurisdiction) {
+  // Map jurisdiction to correct GeoJSON file
+  const fileMap = {
+    "Counties": "/assets/WA_County_Boundaries.geojson",
+    "Congressional Districts": "/assets/Congressional District.geojson",
+    "Legislative Districts": "/assets/wa_legislative_districts.geojson",
+    "Cities": "/assets/CityLimits.geojson",
+    "School Districts": "/assets/Washington_School_Districts_2024.geojson",
+  };
+
+  const filePath = fileMap[jurisdiction];
+  if (!filePath) {
+    console.warn(`No GeoJSON mapping for jurisdiction: ${jurisdiction}`);
+    return null;
+  }
+
+  // ✅ Cache so we don’t reload every time
+  if (!baseGeojsonCache[jurisdiction]) {
+    const res = await fetch(filePath);
+    baseGeojsonCache[jurisdiction] = await res.json();
+  }
+
+  return baseGeojsonCache[jurisdiction];
+}
+
 function mergeDataWithGeojson(baseGeojson, data, keyField = "JURISDICT_NM") {
   const lookup = {};
   data.forEach((row) => {
