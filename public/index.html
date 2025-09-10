@@ -299,6 +299,64 @@
             </div>
         </div>
     </header>
+    <script>
+        // 🔹 Global helpers (must be loaded first)
+        function getKeyField(jurisdiction) {
+          switch (jurisdiction) {
+            case "Counties": return "JURISDICT_NM";
+            case "Congressional Districts": return "NAMELSAD";
+            case "Legislative Districts": return "NAMELSAD";
+            case "Cities": return "CITY_NM";
+            case "School Districts": return "LEAName";
+            case "State Level": return "name";   // <-- WA.geojson "properties.name"
+            default: return "JURISDICT_NM";
+          }
+        }
+
+        let baseGeojsonCache = {};
+        async function loadBaseGeojson(jurisdiction) {
+          const fileMap = {
+            "Counties": "/assets/WA_County_Boundaries.geojson",
+            "Congressional Districts": "/assets/Congressional_District.geojson",
+            "Legislative Districts": "/assets/wa_legislative_districts.geojson",
+            "Cities": "/assets/CityLimits.geojson",
+            "School Districts": "/assets/Washington_School_Districts_2024.geojson",
+            "State Level": "/assets/washington.geojson"
+          };
+          const filePath = fileMap[jurisdiction];
+          if (!filePath) return null;
+
+          if (!baseGeojsonCache[jurisdiction]) {
+            const res = await fetch(filePath);
+            baseGeojsonCache[jurisdiction] = await res.json();
+          }
+          return baseGeojsonCache[jurisdiction];
+        }
+
+        function mergeDataWithGeojson(baseGeojson, data, keyField = "JURISDICT_NM") {
+          const lookup = {};
+          data.forEach((row) => {
+            lookup[row.name.toLowerCase()] = row;
+          });
+
+          return {
+            type: "FeatureCollection",
+            features: baseGeojson.features.map((feat) => {
+              const key = feat.properties[keyField]?.toLowerCase();
+              const match = lookup[key];
+              return {
+                ...feat,
+                properties: {
+                  ...feat.properties,
+                  name: feat.properties[keyField],
+                  voter_count: match ? Number(match.voter_count) : 0,
+                  turnout: match ? Number(match.turnout) : 0,
+                },
+              };
+            }),
+          };
+        }
+    </script>
 
     <script>
         let baseGeojson = null;
@@ -311,9 +369,9 @@
       return baseGeojson;
     }
 
-    let baseGeojsonCache = {};
+    let baseGeojsonCache2 = {};
 
-    async function loadBaseGeojson(jurisdiction) {
+    async function loadBaseGeojson2(jurisdiction) {
   const fileMap = {
     "Counties": "/assets/WA_County_Boundaries.geojson",
     "Congressional Districts": "/assets/Congressional_District.geojson",
@@ -367,19 +425,6 @@
     </script>
         <script>
 
-
-
-            function getKeyField(jurisdiction) {
-switch (jurisdiction) {
-case "Counties": return "JURISDICT_NM";
-case "Congressional Districts": return "NAMELSAD";
-case "Legislative Districts": return "NAMELSAD";
-case "Cities": return "CITY_NM";
-case "School Districts": return "LEAName";
-case "State Level": return "name";
-default: return "JURISDICT_NM";
-}
-}
       function jurisdictionDropdown() {
         return {
           open: false,
