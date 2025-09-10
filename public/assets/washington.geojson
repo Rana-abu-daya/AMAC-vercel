@@ -1,3 +1,5 @@
+{"type": "FeatureCollection",
+  "features": [
 {
  "_id": "washington",
  "type": "Feature",
@@ -5879,4 +5881,7 @@
   ],
   "type": "MultiPolygon"
  }
+}
+
+ ]
 }
