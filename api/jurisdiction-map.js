@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     const colMap = {
       'Counties': 'countycode AS name',
       'Legislative Districts': "concat('Legislative (House) District ', legislativedistrict) AS name",
-      'Congressional Districts': 'congressionaldistrict AS name',
+      'Congressional Districts': "concat('Congressional District ', congressionaldistrict) AS name",
       'Cities': 'regcity AS name',
       'State Level': ` 'Washington' AS name `
     };
