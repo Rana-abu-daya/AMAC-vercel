@@ -16,6 +16,7 @@ export default async function handler(req, res) {
       'Legislative Districts': "concat('Legislative (House) District ', legislativedistrict) AS name",
       'Congressional Districts': "concat('Congressional District ', congressionaldistrict) AS name",
       'Cities': 'regcity AS name',
+      "School Districts":  'school_district AS name',
       'State Level': ` 'Washington' AS name `
     };
 
