@@ -1554,13 +1554,14 @@ function mergeDataWithGeojson(baseGeojson, data, keyField = "JURISDICT_NM") {
   return {
     type: "FeatureCollection",
     features: baseGeojson.features.map((feat) => {
-      const rawName = (feat.properties[keyField] || "").toLowerCase();
-      const match = lookup[rawName];
+      const countyName = feat.properties[keyField]?.toLowerCase();
+      const match = lookup[countyName];
 
       return {
         ...feat,
         properties: {
           ...feat.properties,
+          name: feat.properties[keyField],  // ✅ ensure "name" always exists
           voter_count: match ? match.voter_count : 0,
           turnout: match ? match.turnout : 0,
         },
@@ -1568,6 +1569,7 @@ function mergeDataWithGeojson(baseGeojson, data, keyField = "JURISDICT_NM") {
     }),
   };
 }
+
 
 
 </script>
