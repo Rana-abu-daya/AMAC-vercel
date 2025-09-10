@@ -436,7 +436,7 @@ default: return "JURISDICT_NM";
 
               const base = await loadBaseGeojson(jurisdiction);
               const geojson = mergeDataWithGeojson(base, data, getKeyField(jurisdiction));
-
+console.log(data)
               if (map.getSource('voter-data')) {
                 map.getSource('voter-data').setData(geojson);
               } else {
@@ -446,16 +446,16 @@ default: return "JURISDICT_NM";
                   type: 'fill',
                   source: 'voter-data',
                   paint: {
-                    'fill-color': [
-                      'interpolate',
-                      ['linear'],
-                      ['get', 'voter_count'],
-                      0, '#e0f2ff',
-                      5000, '#93c5fd',
-                      15000, '#3b82f6',
-                      25000, '#1d4ed8',
-                      37000, '#1e3a8a'
-                    ],
+                        'fill-color': [
+      'interpolate',
+      ['linear'],
+      ['get', 'voter_count'],
+      0, '#e0f2ff',     // very light blue
+      500, '#93c5fd',  // light-medium blue
+      5000, '#3b82f6', // medium blue
+      10000, '#1d4ed8', // dark blue
+      30000, '#1e3a8a'  // very dark blue
+    ],
                     'fill-opacity': 0.7,
                     'fill-outline-color': '#ffffff'
                   }
@@ -601,7 +601,7 @@ default: return "JURISDICT_NM";
 
                         const base = await loadBaseGeojson(jurisdiction);
                         const geojson = mergeDataWithGeojson(base, data, getKeyField(jurisdiction));
-
+console.log(data)
                         if (map.getSource('voter-data')) {
                           map.getSource('voter-data').setData(geojson);
                         } else {
@@ -728,7 +728,7 @@ if (window.map && window.map.getSource("voter-data")) {
 
     // Load correct boundary GeoJSON
     const base = await loadBaseGeojson(jurisdiction);
-
+console.log(data)
     // Merge DB stats into boundary features
     const geojson = mergeDataWithGeojson(base, data, getKeyField(jurisdiction));
 
@@ -1781,7 +1781,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     const { data } = await res.json();
-
+console.log(data)
     // Convert into GeoJSON (⚠️ You’ll eventually replace sample polygons with real shapefiles)
     const geojson = {
       type: "FeatureCollection",
